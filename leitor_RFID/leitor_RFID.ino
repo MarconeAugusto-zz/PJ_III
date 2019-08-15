@@ -1,5 +1,5 @@
 //Programa : RFID - Controle de Acesso leitor RFID
-//Autor : FILIPEFLOP
+//Autor : MARCONE AUGUSTO
  
 #include <SPI.h>
 #include <MFRC522.h>
