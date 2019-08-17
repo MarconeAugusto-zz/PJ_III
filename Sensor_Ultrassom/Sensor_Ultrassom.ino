@@ -10,12 +10,11 @@
  
 //Inicializa o sensor nos pinos definidos acima
 Ultrasonic ultrasonic(pino_trigger, pino_echo);
-//Declarando o pino dos LEDs
+//Declarando os pinos dos LEDs
 int ledVerde = 47, ledVermelho = 46;
 
 void setup(){
   Serial.begin(9600);
-  Serial.println("Lendo dados do sensor...");
   pinMode(ledVerde , OUTPUT);
   pinMode(ledVermelho , OUTPUT);
 }
@@ -27,17 +26,13 @@ void loop()
   float cmMsec, inMsec;
   long microsec = ultrasonic.timing();
   cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
-    Serial.print("Distancia em cm: ");
-    Serial.println(cmMsec);
+  Serial.print("Distancia em cm: ");
+  Serial.println(cmMsec);
   if(cmMsec <= 10){
       digitalWrite(ledVerde , HIGH);
       digitalWrite(ledVermelho , LOW);
       delay(1000);
   }else
       digitalWrite(ledVermelho , HIGH);
-      delay(1000);
-  //Exibe informacoes no serial monitor
-  //Serial.print("Distancia em cm: ");
-  //.println(cmMsec);
-  
+      delay(1000); 
 }
