@@ -1,5 +1,7 @@
 # Projeto Integrador III
-### Componente curricular do curso de Engenharia de Telecomunicações
+
+![](https://github.com/MarconeAugusto/PJIII)
+
 
 >Diagrama de Gantt.
 ![](https://github.com/MarconeAugusto/PJIII)
