@@ -4,4 +4,4 @@
 
 
 >Diagrama de Gantt.
-![](https://github.com/MarconeAugusto/PJIII)
+![](https://github.com/MarconeAugusto/PJ_III/blob/master/diagrama.PNG)
