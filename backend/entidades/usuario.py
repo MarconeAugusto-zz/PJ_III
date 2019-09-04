@@ -10,10 +10,16 @@ associacao_usuario_vaga = Table(
     Column('idUsuario', Integer, ForeignKey('usuario.id')),
     Column('idVaga', Integer, ForeignKey('vaga.id'))
 )
+        
 
-class TipoUsuario(Enum):
+class TipoUsuario(object):
     ADM = 1
     USUARIO = 2
+
+    tipo_str = {
+        ADM: 'Administrador',
+        USUARIO: 'Usuario'
+    }
 
 class Usuario(Base):
     '''
@@ -22,10 +28,10 @@ class Usuario(Base):
     __tablename__ = 'usuario'
 
     id = Column(Integer, primary_key=True)
-    nome = Column(String)
-    sobrenome = Column(String)
-    login = Column(String)
-    senha = Column(String)
+    nome = Column(String(30))
+    sobrenome = Column(String(30))
+    login = Column(String(50), nullable=False, unique=True)
+    senha = Column(String(20))
     tipo = Column(Integer)
     data_cadastro = Column(Date)
     vagas = relationship("Vaga", secondary=associacao_usuario_vaga)
@@ -37,3 +43,4 @@ class Usuario(Base):
         self.senha = senha
         self.tipo = tipo
         self.data_cadastro = date.today()
+        vagas = []

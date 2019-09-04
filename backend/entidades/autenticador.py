@@ -4,7 +4,7 @@ from enum import Enum
 
 from base import Base
 
-class EstadoAutenticador(Enum):
+class EstadoAutenticador(object):
     LIVRE_AUT_OK = 1
     LIVRE_AUT_NOK = 2
     OCUPADO_AUT_OK = 3

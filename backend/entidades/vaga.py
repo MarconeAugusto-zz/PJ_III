@@ -3,29 +3,44 @@ from sqlalchemy.orm import relationship
 from enum import Enum
 
 from base import Base
-from autenticador import Autenticador, EstadoAutenticador
 
-class TipoVaga(Enum):
+class TipoVaga(object):
     COMUM = 1
     PREFERENCIAL = 2
 
-class EstadoVaga(Enum):
-    LIVRE = 1
-    OCUPADA = 2
+    tipo_str = {
+        COMUM: 'Comum',
+        PREFERENCIAL: 'Preferencial'
+    }
+
+class EstadoVaga(object):
+    LIVRE_AUT_OK = 1
+    LIVRE_AUT_NOK = 2
+    OCUPADO_AUT_OK = 3
+    OCUPADO_AUT_NOK = 4
+
+    estado_str = {
+        LIVRE_AUT_OK: 'Livre AUT OK',
+        LIVRE_AUT_NOK: 'Livre AUT NOK',
+        OCUPADO_AUT_OK: 'Ocupado AUT OK',
+        OCUPADO_AUT_NOK: 'Ocupado AUT NOK'
+    }
 
 class Vaga(Base):
     '''
     relacao many to many com usuario
-    relacao one to one com autenticador
     '''
     __tablename__ = 'vaga'
 
     id = Column(Integer, primary_key=True)
+    identificador = Column(String(50), nullable=False, unique=True)
+    codAutenticacao = Column(String)
+    estado = Column(Integer)
     tipo = Column(Integer)
-    identificador = Column(String)
-    autenticador = relationship("Autenticador", uselist=False, back_populates="vaga")
+    eventos = relationship("Evento")
 
-    def __init__(self, tipo=1, status=1, identificador=None):
-        self.tipo = tipo
-        self.status = status
+    def __init__(self, identificador, codAutenticacao, estado=1, tipo=1):
         self.identificador = identificador
+        self.codAutenticacao = codAutenticacao
+        self.estado = estado
+        self.tipo = tipo
