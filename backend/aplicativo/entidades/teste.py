@@ -150,6 +150,10 @@ def atrela_usuario_vaga():
     _atrela_usuario_vaga(usuario.id, vaga.id)
 
 
+def adicionar_evento():
+    vaga = input("Vaga: ")
+    
+
 try:
     while True:
         print("""
@@ -163,6 +167,9 @@ Informe uma operação:
     7) Editar vaga
     8) Listar vaga
     9) Atrelar Usuario x Vaga
+    10) Adicionar evento
+    11) Remover evento
+    12) Listar eventos
     0) Sair
 """)
         op = input("Opção: ")

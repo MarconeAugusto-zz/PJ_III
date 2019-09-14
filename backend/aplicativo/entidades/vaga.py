@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
 from enum import Enum
 
-from base import Base
+from entidades.base import Base
 
 class TipoVaga(object):
     COMUM = 1
@@ -37,7 +37,7 @@ class Vaga(Base):
     codAutenticacao = Column(String)
     estado = Column(Integer)
     tipo = Column(Integer)
-    eventos = relationship("Evento")
+    # eventos = relationship("Evento")
 
     def __init__(self, identificador, codAutenticacao, estado=1, tipo=1):
         self.identificador = identificador

@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from enum import Enum
 from datetime import date
 
-from base import Base
+from entidades.base import Base
 
 associacao_usuario_vaga = Table(
     'usuario_vaga', Base.metadata,
@@ -44,3 +44,15 @@ class Usuario(Base):
         self.tipo = tipo
         self.data_cadastro = date.today()
         vagas = []
+
+    def converteParaJson(self):
+        usuarioJson = {
+            'id': self.id,
+            'nome': self.nome,
+            'sobrenome': self.sobrenome,
+            'login': self.login,
+            'senha': self.senha,
+            'tipo': TipoUsuario.tipo_str[self.tipo],
+            'dataCadastro': self.data_cadastro
+        }
+        return usuarioJson

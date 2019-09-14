@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Date
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 from base import Base
 
@@ -11,9 +12,9 @@ class Evento(Base):
 
     id = Column(Integer, primary_key=True)
     tipo = Column(Integer)
-    data = Column(Date)
+    data = Column(DateTime)
     vaga_id = Column(Integer, ForeignKey('vaga.id'))
 
-    def __init__(self, tipo, data):
+    def __init__(self, tipo, data=None):
         self.tipo = tipo
-        self.data = data
+        self.data = data if data is not None else datetime.now()
