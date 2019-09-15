@@ -13,6 +13,8 @@ class TipoVaga(object):
         PREFERENCIAL: 'Preferencial'
     }
 
+    lista_tipo = [COMUM, PREFERENCIAL]
+
 class EstadoVaga(object):
     LIVRE_AUT_OK = 1
     LIVRE_AUT_NOK = 2
@@ -25,6 +27,11 @@ class EstadoVaga(object):
         OCUPADO_AUT_OK: 'Ocupado AUT OK',
         OCUPADO_AUT_NOK: 'Ocupado AUT NOK'
     }
+
+    lista_estados = [
+        LIVRE_AUT_OK, LIVRE_AUT_NOK,
+        OCUPADO_AUT_OK, OCUPADO_AUT_NOK
+    ]
 
 class Vaga(Base):
     '''
@@ -44,3 +51,21 @@ class Vaga(Base):
         self.codAutenticacao = codAutenticacao
         self.estado = estado
         self.tipo = tipo
+
+    def setaEstado(self, estado):
+        if estado in EstadoVaga.lista_estados:
+            self.estado = estado
+
+    def setaTipo(self, tipo):
+        if tipo in TipoVaga.lista_tipo:
+            self.tipo = tipo
+
+    def converteParaJson(self):
+        vagaJson = {
+            'id': self.id,
+            'identificador': self.identificador,
+            'codigo': self.codAutenticacao,
+            'estado': EstadoVaga.estado_str[self.estado],
+            'tipo': TipoVaga.tipo_str[self.tipo]
+        }
+        return vagaJson

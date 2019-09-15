@@ -45,6 +45,15 @@ class Usuario(Base):
         self.data_cadastro = date.today()
         vagas = []
 
+    def setaVagas(self, vagas):
+        if type(vagas) == list:
+            self.vagas.extend(vagas)
+        elif vagas is not None:
+            self.vagas.append(vagas)
+
+    def obtemVagas(self):
+        return self.vagas
+
     def converteParaJson(self):
         usuarioJson = {
             'id': self.id,
@@ -53,6 +62,7 @@ class Usuario(Base):
             'login': self.login,
             'senha': self.senha,
             'tipo': TipoUsuario.tipo_str[self.tipo],
-            'dataCadastro': self.data_cadastro
+            'dataCadastro': self.data_cadastro,
+            # 'vagas': [vg.converteParaJson() for vg in self.vagas]
         }
         return usuarioJson

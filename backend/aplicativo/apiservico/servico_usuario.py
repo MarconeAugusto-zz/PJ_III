@@ -1,7 +1,5 @@
-import sys
-
 from entidades.usuario import Usuario
-from entidades.base import Session, engine, Base
+from entidades.base import Session
 
 class ServicoUsuario(object):
     def obtem(self, idUsuario=None):
@@ -13,9 +11,14 @@ class ServicoUsuario(object):
         else:
             usuarios = session.query(Usuario).all()
 
-        session.close()
+        usuariosJson = None
+        if usuarios is not None:
+            if type(usuarios) == list:
+                usuariosJson = [usr.converteParaJson() for usr in usuarios]
+            else:
+                usuariosJson = usuarios.converteParaJson()
 
-        usuariosJson = [usr.converteParaJson() for usr in usuarios] if usuarios is not None else None
+        session.close()
         return usuariosJson
 
     def novoUsuarioDadosValidados(self, dados):
@@ -40,5 +43,21 @@ class ServicoUsuario(object):
         
         return {'msg': 'Usuario adicionado'}
 
+    def _obtemUsuarioPorId(self, sessao, idUsuario):
+        usuario = sessao.query(Usuario).filter(Usuario.id == idUsuario).first()
+        return usuario
+
+    def obtemVagas(self, idUsuario):
+        sessao = Session()
+
+        usuario = self._obtemUsuarioPorId(sessao, idUsuario)
+        if usuario is None:
+            sessao.close()
+            return {'erro': 404, 'msg': 'Usuario nao encontrado'}
+        
+        vagas = usuario.obtemVagas()
+        sessao.close()
+        vagasJson = [vg.converteParaJson() for vg in vagas]
+        return vagasJson
 
 servicoUsuario = ServicoUsuario()

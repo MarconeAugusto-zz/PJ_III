@@ -41,3 +41,11 @@ def adiciona_usuario():
         abort(resp['erro'], resp.get('msg'))
 
     return make_response(jsonify(resp), 201)
+
+# curl -i http://localhost:5000/usuario/1/vagas
+@bp_usuario.route('/usuario/<int:idUsuario>/vagas', methods=['GET'])
+def obtem_vagas(idUsuario):
+    resp = servicoUsuario.obtemVagas(idUsuario)
+    if 'erro' in resp:
+        abort(resp['erro'], resp.get('msg'))
+    return jsonify(resp)
