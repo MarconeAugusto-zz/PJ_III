@@ -9,6 +9,7 @@ from vaga import Vaga, TipoVaga, EstadoVaga
 from autenticador import Autenticador, EstadoAutenticador
 from evento import Evento
 
+
 # 2 - generate database schema
 Base.metadata.create_all(engine)
 
@@ -16,14 +17,14 @@ Base.metadata.create_all(engine)
 session = Session()
 
 # 4 - cria usuarios
-usuario01 = Usuario('Joao', 'Pereira', 'joao', '1234', 1)
-usuario02 = Usuario('Pedro', 'Souza', 'pedro', '4567', 2)
-usuario03 = Usuario('Maria', 'Rosa', 'maria', '7890', 1)
+usuario01 = Usuario('Joao', 'Pereira', 'joao', '1234', TipoUsuario.ADM)
+usuario02 = Usuario('Pedro', 'Souza', 'pedro', '4567', TipoUsuario.USUARIO)
+usuario03 = Usuario('Maria', 'Rosa', 'maria', '7890', TipoUsuario.ADM)
 
 # 5 - cria vagas
-vaga01 = Vaga(1, 1, 'A01')
-vaga02 = Vaga(2, 1, 'B04')
-vaga03 = Vaga(1, 2, 'A18')
+vaga01 = Vaga('A01', TipoVaga.COMUM, EstadoVaga.LIVRE)
+vaga02 = Vaga('B04', TipoVaga.PREFERENCIAL, EstadoVaga.LIVRE)
+vaga03 = Vaga('A18', TipoVaga.COMUM, EstadoVaga.OCUPADA)
 
 # 6 - adiciona vaga ao usuario
 usuario01.vagas = [vaga01]
@@ -40,9 +41,9 @@ usuario03.vagas = [vaga03]
     # LIVRE_AUT_NOK = 2
     # OCUPADO_AUT_OK = 3
     # OCUPADO_AUT_NOK = 4
-autenticador01 = Autenticador('A031DF', 1, vaga01)
-autenticador02 = Autenticador('B7A912', 2, vaga02)
-autenticador03 = Autenticador('82AD61', 3, vaga03)
+autenticador01 = Autenticador('A031DF', EstadoAutenticador.LIVRE_AUT_OK, vaga01)
+autenticador02 = Autenticador('B7A912', EstadoAutenticador.LIVRE_AUT_OK, vaga02)
+autenticador03 = Autenticador('82AD61', EstadoAutenticador.OCUPADO_AUT_OK, vaga03)
 
 # 9 - salva os dados
 session.add(usuario01)
