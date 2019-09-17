@@ -2,7 +2,7 @@
 
 //Bibliotecas
 #include <SPI.h>
-#include <MFRC522Extended.h>
+//#include <MFRC522Extended.h>
 #include <MFRC522.h>
 #include <Ultrasonic.h>
 #include <elapsedMillis.h>
@@ -28,7 +28,7 @@ ThreadController controll = ThreadController();
 //My Thread  (como um ponteiro)
 Thread* myThread = new Thread();
 //His Thread (not pointer)
-//Thread hisThread = Thread();
+Thread hisThread = Thread();
 
 void iniciaSerial() {
   Serial.begin(57600);   // Inicia a serial
@@ -38,7 +38,7 @@ void iniciaSerial() {
   Serial.println();
 }
 
-void initPIN(){
+void initPIN() {
   pinMode(ledVerde , OUTPUT);
   pinMode(buzzer , OUTPUT);
 }
@@ -49,86 +49,87 @@ void setup() {
   getDistancia();       //Obtem a distancia inicial
   initPIN();            //Configura os pinos
   SPI.begin();          // Inicia o barramento SPI
-
   // Configure myThread
   myThread->onRun(getDistancia);
   myThread->setInterval(1000);  //verifica o sensor ultrassonico de 1 em 1 segundo
-  //hisThread.onRun(getAutenticacao);
-  //hisThread.setInterval(2000);  //verifica o RFID de 2 em 2 segundos
-
+  hisThread.onRun(getAutenticacao);
+  hisThread.setInterval(2000);  //verifica o RFID de 2 em 2 segundos
+  // add as Threads ao controle
   controll.add(myThread);
-  //controle.add(&hisThread);
+  controll.add(&hisThread);
 }
 
 void loop() {
   controll.run();
-  digitalWrite(ledVerde , LOW);
+  digitalWrite(ledVerde , LOW); // identificaçao visual para sensor ultrassonico
   Serial.print("Distancia = ");
   Serial.println(dist);
-  while(dist < distancia){
-    digitalWrite(ledVerde , HIGH);
+  /////////////////////////////////////////////
+  if (dist < distancia and estado_aut == false) { // mudança no estado da vaga, solicitar autenticação da vaga
+    digitalWrite(ledVerde , HIGH);  // identificaçao visual para sensor ultrassonico
     elapsedMillis waiting;
-    while(waiting < tempoEspera){
+    while (waiting < tempoEspera) {
       getAutenticacao();
     }
-    if(estado_aut == true){
+    if (estado_aut == true) {
       Serial.println("Vaga autenticada");
-    }else{
+      // disparar via sigfox
+    } else {
       Serial.println("Vaga nao autenticada");
     }
   }
-  delay(1000);
-  Serial.println("Nenhum veiculo detectado...");
+  //if (estado_aut == true and estado_aut == false){  // sem mudança no estado da vaga, autenticação da vaga
+      /////////////////////////////////////////////
+      delay(1000);
+      Serial.println("Nenhum veiculo detectado...");
 }
 
-void getAutenticacao(){
-  estado_vaga = true;
-  if ( ! mfrc522.PICC_IsNewCardPresent()){
+void getDistancia() { // myThread
+  //Le as informacoes do sensor e converte para centímetros
+  float cmMsec;
+  long microsec = ultrasonic.timing();
+  cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
+  dist = cmMsec;
+}
+
+void getAutenticacao() { // hisThread
+  if ( ! mfrc522.PICC_IsNewCardPresent()) {
     return;
   }
   // Selecione um dos cartões
-  if ( ! mfrc522.PICC_ReadCardSerial()){
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
     return;
   }
   //Mostra o UID na serial
   Serial.print("UID da tag :");
-  String conteudo= "";
-  byte letra;
-  for (byte i = 0; i < mfrc522.uid.size; i++) 
+  String conteudo = "";
+  for (byte i = 0; i < mfrc522.uid.size; i++)
   {
-     Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-     Serial.print(mfrc522.uid.uidByte[i], HEX);
-     conteudo.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
-     conteudo.concat(String(mfrc522.uid.uidByte[i], HEX));
+    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    Serial.print(mfrc522.uid.uidByte[i], HEX);
+    conteudo.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    conteudo.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
   Serial.println();
   Serial.print("Mensagem : ");
   conteudo.toUpperCase();
-  if (conteudo.substring(1) == "40 1F 63 46"){ //UID 1 - Chaveiro
-    Serial.println("Ola Marcone Augusto !");
+  if (conteudo.substring(1) == "40 1F 63 46") { //UID 1 - Chaveiro
+    estado_aut = true;  //altera a variavel
     Serial.println("Vaga autenticada");
-    Serial.println();
-    digitalWrite(ledVerde , LOW);
-    buzina_aprovado();
-    delay(2500);
-    digitalWrite(ledVerde , HIGH);
-    estado_aut = true;
+    buzzer_aprovado();
+    //delay(2500);
+  } else {
+    Serial.println("Vaga nao autenticada");
+    buzzer_rejeitado();
   }
-} 
-
-void buzina_aprovado(){
-    int frequencia = 3500;
-    tone(buzzer,frequencia,500);
-}
-void buzina_rejeitado(){
-    int frequencia = 300;
-    tone(buzzer,frequencia,500);
 }
 
-void getDistancia(){
-  //Le as informacoes do sensor e converte para centímetros
-  float cmMsec, inMsec;
-  long microsec = ultrasonic.timing();
-  cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
-  dist = cmMsec;
+void buzzer_aprovado() {
+  int frequencia = 3500;
+  tone(buzzer, frequencia, 500);
+}
+
+void buzzer_rejeitado() {
+  int frequencia = 300;
+  tone(buzzer, frequencia, 500);
 }
