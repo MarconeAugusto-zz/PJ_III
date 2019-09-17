@@ -6,6 +6,8 @@
 #include <MFRC522.h>
 #include <Ultrasonic.h>
 #include <elapsedMillis.h>
+#include <Thread.h>
+#include <ThreadController.h>
 
 //Constantes
 #define SS_PIN 10
@@ -20,29 +22,49 @@ int ledVerde = 12, buzzer = 37, tempoEspera = 5000; // 5 segundos.
 float distancia = 20.0, dist; // distancia utilizada 20 cm
 boolean estado_vaga = false, estado_aut = false;
 
+// ThreadController que controlará todos os threads
+ThreadController controll = ThreadController();
+
+//My Thread  (como um ponteiro)
+Thread* myThread = new Thread();
+//His Thread (not pointer)
+//Thread hisThread = Thread();
+
 void iniciaSerial() {
-  Serial.begin(19200);   // Inicia a serial
+  Serial.begin(57600);   // Inicia a serial
   Serial.println("Iniciando Serial...");
   Serial.println();
   Serial.println("Iniciando Sensor Ultrassonico...");
   Serial.println();
-  dist = getDistancia();
 }
 
-void initLED(){
+void initPIN(){
   pinMode(ledVerde , OUTPUT);
+  pinMode(buzzer , OUTPUT);
 }
 
 void setup() {
-  iniciaSerial();
-  initLED();
-  SPI.begin();          // Inicia o barramento SPI
+  iniciaSerial();       //Inicia Serial
   mfrc522.PCD_Init();   // Inicia MFRC522
+  getDistancia();       //Obtem a distancia inicial
+  initPIN();            //Configura os pinos
+  SPI.begin();          // Inicia o barramento SPI
+
+  // Configure myThread
+  myThread->onRun(getDistancia);
+  myThread->setInterval(1000);  //verifica o sensor ultrassonico de 1 em 1 segundo
+  //hisThread.onRun(getAutenticacao);
+  //hisThread.setInterval(1200);  //verifica o RFID de 1 em 1 segundo
+
+  controll.add(myThread);
+  //controle.add(&hisThread);
 }
 
 void loop() {
+  controll.run();
   digitalWrite(ledVerde , LOW);
-  dist = getDistancia();
+  Serial.print("Distancia = ");
+  Serial.println(dist);
   while(dist < distancia){
     digitalWrite(ledVerde , HIGH);
     elapsedMillis waiting;
@@ -103,10 +125,10 @@ void buzina_rejeitado(){
     tone(buzzer,frequencia,500);
 }
 
-float getDistancia(){
+void getDistancia(){
   //Le as informacoes do sensor e converte para centímetros
   float cmMsec, inMsec;
   long microsec = ultrasonic.timing();
   cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
-  return cmMsec;
+  dist = cmMsec;
 }
