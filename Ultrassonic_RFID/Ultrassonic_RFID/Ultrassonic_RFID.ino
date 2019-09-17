@@ -54,7 +54,7 @@ void setup() {
   myThread->onRun(getDistancia);
   myThread->setInterval(1000);  //verifica o sensor ultrassonico de 1 em 1 segundo
   //hisThread.onRun(getAutenticacao);
-  //hisThread.setInterval(1200);  //verifica o RFID de 1 em 1 segundo
+  //hisThread.setInterval(2000);  //verifica o RFID de 2 em 2 segundos
 
   controll.add(myThread);
   //controle.add(&hisThread);
