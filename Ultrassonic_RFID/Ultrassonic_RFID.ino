@@ -2,33 +2,41 @@
 
 //Bibliotecas
 #include <SPI.h>
-#include <MFRC522Extended.h>
 #include <MFRC522.h>
 #include <Ultrasonic.h>
 #include <elapsedMillis.h>
 #include <Thread.h>
 #include <ThreadController.h>
 
-//Constantes
+//Constantes RFID
 #define SS_PIN 10
 #define RST_PIN 11
+//Constantes Ultrassônico
 #define pino_trigger 49
 #define pino_echo 48
+
 MFRC522 mfrc522(SS_PIN, RST_PIN); //Instância MFRC522.
 Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
 
 //Declarando os pinos dos LEDs
-String IdVaga = "VG01";   //exemplo 
-int ledVerde = 12, buzzer = 9, tempoEspera = 10000; // 5 segundos.
+String IdVaga = "VG01";   //exemplo
+String mensagem;
+
+int ledVerde = 12, buzzer = 9, estado, estado_tmp, tempoEspera = 10000; // 10 segundos.
+
 float distancia = 20.0, dist; // distancia utilizada 20 cm
 
 //estados
-boolean estado_vaga = false, estado_aut = false;
+boolean autentica_tmp, autentica = false;
 
-//Acho melhor colocar os estados como int
-//estado 1 = vaga livre
-//estado 2 = vaga ocupada e autenticada
-//estado 3 = vaga ocupada e nao autenticada
+//Debug
+boolean debug = true;
+
+//Estados Representados por inteiros de 1 a 4
+//estado 1 = vaga livre e autenticação OK
+//estado 2 = vaga livre e autenticação NOK
+//estado 3 = vaga ocupada e autenticação OK
+//estado 4 = vaga ocupada e autenticação NOK
 
 
 // ThreadController que controlará todos os threads
@@ -40,90 +48,112 @@ Thread* myThread = new Thread();
 //His Thread (not pointer)
 Thread hisThread = Thread();
 
-void iniciaSerial() {
+void configInit() {
   Serial.begin(9600);   // Inicia a serial
   Serial.println();
   Serial.println("Iniciando Serial...");
   Serial.println();
-}
-
-void initPIN() {
+  getDistancia();       //Obtem a distancia inicial
+  delay(500);
   pinMode(ledVerde , OUTPUT);
   pinMode(buzzer , OUTPUT);
-}
-
-void setup() {
-  iniciaSerial();       //Inicia Serial
-  getDistancia();       //Obtem a distancia inicial
-  initPIN();            //Configura os pinos
   Serial.println("Iniciando Sensor Ultrassonico...");
   Serial.println();
   SPI.begin();          // Inicia o barramento SPI
   mfrc522.PCD_Init();   // Inicia MFRC522
-  // Configure myThread
+  digitalWrite(ledVerde , LOW); // identificaçao visual para sensor ultrassonico
+  estado = 2; // inicia no estado 2
+  Serial.println("Iniciando aplicacao...");
+  Serial.println();
+  buzzer_init();
+}
+
+
+void setup() {
+  configInit();       //Inicia Serial
+  // Configure Threads
   myThread->onRun(getDistancia);
-  myThread->setInterval(1000);  //verifica o sensor ultrassonico de 1 em 1 segundo
+  myThread->setInterval(500);  //verifica o sensor ultrassonico 
   hisThread.onRun(getAutenticacao);
-  hisThread.setInterval(1000);  //verifica o RFID de 2 em 2 segundos
+  hisThread.setInterval(500);  //verifica o RFID 
   // add as Threads ao controle
   controll.add(myThread);
   controll2.add(&hisThread);
-  
-  digitalWrite(ledVerde , LOW); // identificaçao visual para sensor ultrassonico
 }
 
 void loop() {
-  controll.run(); //metodo verifica distancia
-  Serial.print("Distancia = ");
-  Serial.print(dist);
-  Serial.println(" cm");
-  
-  //////////////////////// mudança no estado da vaga, solicitar autenticação da vaga
-  //////////////////////////////////////////////////////////////////////////////////
-  if (dist < distancia and estado_aut == false) {
+  estado_tmp = estado;
+  controll.run();   //metodo verifica distancia
+  controll2.run();  //metodo verifica RFID
+  if (dist > distancia) {
+    digitalWrite(ledVerde , LOW);  // identificaçao visual para sensor ultrassonico
+  }
+  if (debug) {
+    Serial.print("Distancia = ");
+    Serial.print(dist);
+    Serial.print(" cm. Estado = ");
+    Serial.println(estado_tmp);
+  }
+  if (dist < distancia and (estado_tmp == 1 or estado_tmp == 2)) {
+    if (debug) {
+      Serial.println("if(dist < distancia and (estado_tmp == 1 or estado_tmp == 2)");
+    }
     digitalWrite(ledVerde , HIGH);  // identificaçao visual para sensor ultrassonico
     elapsedMillis waiting;
     while (waiting < tempoEspera) {
       getAutenticacao(); // tempo para autenticar a vaga
     }
-    if (estado_aut == true) {
-      Serial.println();
-      Serial.print("Vaga: ");
-      Serial.print(IdVaga);
-      Serial.println(", Autenticada");
-      Serial.println();
-      estado_vaga = true;
-      // Chamar metodo para enviar mensagem via Sigfox
+    if (autentica_tmp == true) {
+      autentica = autentica_tmp;
+      mensagem = "Vaga: " + IdVaga + ", ocupada e autenticada com sucesso.";
+      estado_tmp = 3;
     } else {
-      Serial.println();
-      Serial.print("Vaga: ");
-      Serial.print(IdVaga);
-      Serial.println(", nao Autenticada");
-      Serial.println();
-      // Chamar metodo para enviar mensagem via Sigfox
+      autentica = autentica_tmp;
+      //autentica = false;
+      mensagem = "Vaga: " + IdVaga + ", ocupada e não autenticada.";
+      estado_tmp = 4;
     }
   }
-  Serial.println("Passou o primeiro IF");
-  if (dist > distancia and estado_vaga == true){
-    estado_vaga == false;
-    digitalWrite(ledVerde , LOW); // identificaçao visual para sensor ultrassonico    
+  if(dist < distancia and autentica_tmp != autentica){
+    if (debug) {
+      Serial.println("if(dist < distancia and autentica_tmp != autentica)");
+    }
+    elapsedMillis waiting;
+    while (waiting < tempoEspera) {
+      getDistancia(); // tempo para autenticar a vaga
+    }
+    if(dist > distancia){
+      mensagem = "Vaga: " + IdVaga + ", livre e autenticada.";
+      estado_tmp = 1;
+    }else{
+      autentica_tmp = autentica;
+    }
   }
   
-  //////////////////////////////// sem mudança no estado da vaga, houve autenticação
-  //////////////////////////////////////////////////////////////////////////////////
-  if(estado_vaga == true){  // sem mudança no estado da vaga, autenticação da vaga
-    // usuario vai autenticar a retirada do veiculo
-    //digitalWrite(ledVerde , HIGH);  // identificaçao visual para sensor ultrassonico
-    controll2.run(); //leitor RFID
+  if(dist > distancia and (estado_tmp == 3 or estado_tmp == 4)){
+    if (debug) {
+      Serial.println("if(dist > distancia and (estado_tmp == 3 or estado_tmp == 4))");
+    }
+    mensagem = "Vaga: " + IdVaga + ", livre com saida não autenticada.";
+    estado_tmp = 1;
   }
-  
-  //////////////////////////////////////////////////// sem veiculo, sem autenticação
-  //////////////////////////////////////////////////////////////////////////////////
-  if(estado_vaga == false and estado_aut == false){
 
-    Serial.println("Nenhum veiculo detectado...");
+  if (estado_tmp != estado) {
+    // invocar método para enviar via sigfox
+    if (debug) {
+      delay(500);
+      Serial.println();
+      Serial.println(mensagem);
+      Serial.println();
+      delay(500);
+    }
+  } else {
+    delay(500);
+    if (debug) {
+      Serial.println("Nenhuma alteração detectada...");
+    }
   }
-  delay(1000);  
+  estado = estado_tmp;
 }
 
 void getDistancia() { // myThread
@@ -136,7 +166,9 @@ void getDistancia() { // myThread
 }
 
 void getAutenticacao() { // hisThread
-  //Serial.println("Verifica RFID"); // debug
+  if(debug){
+    Serial.println("Verifica RFID"); // debug
+  }
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
     return;
   }
@@ -161,19 +193,25 @@ void getAutenticacao() { // hisThread
   //Serial.print("Mensagem : ");
   conteudo.toUpperCase();
   if (conteudo.substring(1) == "40 1F 63 46") { //UID 1 - Chaveiro
-    if(estado_aut == false){
-      estado_aut = true;  //altera a variavel
-    }else{
-      estado_aut = false;  //altera a variavel
+    if (autentica_tmp == false) {
+      autentica_tmp = true;  //altera a variavel
+    } else {
+      autentica_tmp = false;  //altera a variavel
     }
     //Serial.println("Vaga autenticada");
     buzzer_aprovado();
     delay(2500);
   } else {
-    Serial.println("Vaga nao autenticada");
+    autentica_tmp = false;
+    //Serial.println("Vaga nao autenticada");
     buzzer_rejeitado();
     delay(2500);
   }
+}
+
+void buzzer_init() {
+  int frequencia = 8000;
+  tone(buzzer, frequencia, 500);
 }
 
 void buzzer_aprovado() {
