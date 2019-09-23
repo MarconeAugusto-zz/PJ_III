@@ -44,7 +44,7 @@ class Vaga(Base):
     codAutenticacao = Column(String)
     estado = Column(Integer)
     tipo = Column(Integer)
-    # eventos = relationship("Evento")
+    eventos = relationship("Evento")
 
     def __init__(self, identificador, codAutenticacao, estado=1, tipo=1):
         self.identificador = identificador
@@ -69,3 +69,9 @@ class Vaga(Base):
             'tipo': TipoVaga.tipo_str[self.tipo]
         }
         return vagaJson
+
+    def setaEvento(self, eventos):
+        if type(eventos) == list:
+            self.eventos.extend(eventos)
+        elif eventos is not None:
+            self.eventos.append(eventos)

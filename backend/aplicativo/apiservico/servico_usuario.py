@@ -2,7 +2,7 @@ from entidades.usuario import Usuario
 from entidades.base import Session
 
 class ServicoUsuario(object):
-    def obtem(self, idUsuario=None):
+    def obtem(self, idUsuario=None, comVagas=False):
         session = Session()
         usuarios = None
 
@@ -14,9 +14,9 @@ class ServicoUsuario(object):
         usuariosJson = None
         if usuarios is not None:
             if type(usuarios) == list:
-                usuariosJson = [usr.converteParaJson() for usr in usuarios]
+                usuariosJson = [usr.converteParaJson(comVagas) for usr in usuarios]
             else:
-                usuariosJson = usuarios.converteParaJson()
+                usuariosJson = usuarios.converteParaJson(comVagas)
 
         session.close()
         return usuariosJson

@@ -16,6 +16,12 @@ def obtem_vagas():
     resp = {'vagas': servicoVaga.obtem()}
     return jsonify(resp)
 
+# curl -i http://localhost:5000/vaga/livres
+@bp_vaga.route('/vaga/livres', methods=['GET'])
+def obtem_vagas_livres():
+    resp = {'vagas': servicoVaga.obtemLivres()}
+    return jsonify(resp)
+
 # curl -i http://localhost:5000/vaga/1
 @bp_vaga.route('/vaga/<int:idVaga>', methods=['GET'])
 def obtem_vaga(idVaga):
@@ -37,6 +43,24 @@ def adiciona_vaga():
         abort(404)
     
     resp = servicoVaga.adiciona(request.json)
+    if 'erro' in resp:
+        abort(resp['erro'], resp.get('msg'))
+
+    return make_response(jsonify(resp), 201)
+
+
+# curl -i http://localhost:5000/vaga/1
+@bp_vaga.route('/vaga/<int:idVaga>/eventos', methods=['GET'])
+def obtem_eventos(idVaga):
+    resp = {'eventos': servicoVaga.obtemEventos(idVaga)}
+    return jsonify(resp)
+
+@bp_vaga.route('/evento', methods=['POST'])
+def adiciona_evento():
+    if not request.json:
+        abort(404)
+
+    resp = servicoVaga.adicionaEvento(request.json)
     if 'erro' in resp:
         abort(resp['erro'], resp.get('msg'))
 

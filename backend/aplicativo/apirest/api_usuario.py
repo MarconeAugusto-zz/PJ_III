@@ -28,6 +28,7 @@ def remove_usuario(idUsuario):
     return jsonify(servicoUsuario.remove(idUsuario))
 
 
+# curl -i -H "Content-Type: application/json" -X POST -d '{"identificadorVaga": "A01", "novoEstado": 1}' http://localhost:5000/usuario
 # curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Joao","sobrenome":"Silva","login":"joao","senha":"1234","tipo":2}' http://localhost:5000/usuario
 # curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","login":"vini","senha":"1234"}' http://localhost:5000/usuario
 # curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","login":"vini","senha":"1234","tipo":1}' http://localhost:5000/usuario
@@ -48,4 +49,11 @@ def obtem_vagas(idUsuario):
     resp = servicoUsuario.obtemVagas(idUsuario)
     if 'erro' in resp:
         abort(resp['erro'], resp.get('msg'))
+    return jsonify(resp)
+
+
+# curl -i http://localhost:5000/usuarios/vagas
+@bp_usuario.route('/usuarios/vagas', methods=['GET'])
+def obtem_usuarios_vagas():
+    resp = {'usuarios': servicoUsuario.obtem(comVagas=True)}
     return jsonify(resp)

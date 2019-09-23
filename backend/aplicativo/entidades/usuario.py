@@ -34,7 +34,7 @@ class Usuario(Base):
     senha = Column(String(20))
     tipo = Column(Integer)
     data_cadastro = Column(Date)
-    vagas = relationship("Vaga", secondary=associacao_usuario_vaga)
+    vagas = relationship("Vaga", secondary=associacao_usuario_vaga, backref='usuario')
 
     def __init__(self, nome, sobrenome, login, senha, tipo):
         self.nome = nome
@@ -54,7 +54,7 @@ class Usuario(Base):
     def obtemVagas(self):
         return self.vagas
 
-    def converteParaJson(self):
+    def converteParaJson(self, comVagas=False):
         usuarioJson = {
             'id': self.id,
             'nome': self.nome,
@@ -62,7 +62,10 @@ class Usuario(Base):
             'login': self.login,
             'senha': self.senha,
             'tipo': TipoUsuario.tipo_str[self.tipo],
-            'dataCadastro': self.data_cadastro,
-            # 'vagas': [vg.converteParaJson() for vg in self.vagas]
+            'dataCadastro': self.data_cadastro
         }
+
+        if comVagas:
+            usuarioJson['vagas'] = [vg.converteParaJson() for vg in self.vagas]
+
         return usuarioJson

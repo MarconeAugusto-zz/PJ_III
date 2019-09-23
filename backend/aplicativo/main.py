@@ -3,6 +3,7 @@ import sys
 
 from entidades.vaga import Vaga
 from entidades.usuario import Usuario
+from entidades.evento import Evento
 from entidades.base import engine, Base
 from apirest.aplicacao import app
 
