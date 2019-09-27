@@ -1,5 +1,5 @@
 //Integração sesnsor ultrassom, RFID e Sigfox
-//Estados Representados por inteiros de 1 a 4
+///////Estados Representados por inteiros de 1 a 4
 ///////estado 1 = vaga livre e autenticação OK
 ///////estado 2 = vaga livre e autenticação NOK
 ///////estado 3 = vaga ocupada e autenticação OK
