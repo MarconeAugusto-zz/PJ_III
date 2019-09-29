@@ -31,17 +31,19 @@ class ServicoUsuario(object):
             return {'erro': 400, 'msg': 'Parametros incompletos'}
 
         usuario = Usuario(dados['nome'], dados['sobrenome'], dados['login'], dados['senha'], dados['tipo'])
+        usuarioJson = {}
 
         session = Session()
         try:
             session.add(usuario)
             session.commit()
+            usuarioJson = usuario.converteParaJson()
         except Exception as e:
             return {'erro': 500, 'msg': 'Erro ao adicionar usuario', 'exc': str(e)}
         finally:
             session.close()
         
-        return {'msg': 'Usuario adicionado'}
+        return {'msg': 'Usuario adicionado', 'usuario': usuarioJson}
 
     def _obtemUsuarioPorId(self, sessao, idUsuario):
         usuario = sessao.query(Usuario).filter(Usuario.id == idUsuario).first()
@@ -59,5 +61,27 @@ class ServicoUsuario(object):
         sessao.close()
         vagasJson = [vg.converteParaJson() for vg in vagas]
         return vagasJson
+
+    def removeUsuario(self, idUsuario):
+        usuarioJson = {}
+        session = Session()
+        try:
+            usuario = session.query(Usuario).filter(Usuario.id == idUsuario).first()
+
+            if usuario is None:
+                return {'erro': 404, 'msg': 'Usuario nao encontrado'}
+
+            usuarioJson = usuario.converteParaJson()
+            session.delete(usuario)
+            session.commit()
+        except Exception as e:
+            print(str(e))
+            return {'erro': 500, 'msg': 'Erro ao remover usuario', 'exc': str(e)}
+        finally:
+            session.close()
+        
+        return {'msg': 'Usuario removido', 'usuario': usuarioJson}
+
+
 
 servicoUsuario = ServicoUsuario()

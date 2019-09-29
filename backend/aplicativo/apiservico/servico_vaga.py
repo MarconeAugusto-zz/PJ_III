@@ -26,19 +26,8 @@ class ServicoVaga(object):
 
     def obtemLivres(self):
         session = Session()
-        # query = (session.query(Vaga)
-        #         .outerjoin(associacao_usuario_vaga, associacao_usuario_vaga.c.idUsuario == Vaga.id)
-        #         .filter(associacao_usuario_vaga.c.idUsuario == None)
-        # )
-        # select * from vaga where id not in (select idVaga from usuario_vaga);
-
-        # query = session.query(Vaga).filter(Vaga.id.in_(session.query(Vaga.usuario)))
-        query = session.query(Vaga.id)
+        query = session.query(Vaga).filter(~Vaga.usuario.any())
         vagas = query.all()
-        # vagas = query.all()
-        # permissions = session.query(Permission).join(Role).join(User).filter(User.username='MisterX').all()
-        # vagas = session.query(Vaga).join(Usuario).filter(Vaga.idVaga=1).all()
-        # vagas = Session.query(Vaga).filter(Vaga.usuario.any()).all()
         session.close()
 
         vagasJson = None
@@ -57,7 +46,7 @@ class ServicoVaga(object):
     def _atrela_usuario_vaga(self, vaga, idUsuario, sessao):
         usuario = sessao.query(Usuario).filter(Usuario.id == idUsuario).first()
         if usuario is None:
-            return
+            raise Exception('Usuario nao encontrado')
 
         usuario.setaVagas(vaga)
 
@@ -110,6 +99,26 @@ class ServicoVaga(object):
 
         return eventos
 
+    def obtemUltimosEventos(self, data):
+        count = data.get('limit', 10) if data is not None else 10
+
+        session = Session()
+        eventosJson = []
+        
+        try:
+            eventos = session.query(Evento).order_by(Evento.id.desc()).limit(count).all()
+
+            if eventos is not None:
+                for evento in eventos:
+                    eventosJson.append(evento.converteParaJson())
+        
+        except Exception as e:
+            print(str(e))
+            return {'erro': 500, 'msg': 'Erro ao obter eventos'}
+        finally:
+            session.close()
+        
+        return eventosJson
 
     def adicionaEvento(self, dados):
         if 'id' not in dados or 'estado' not in dados:
@@ -123,7 +132,8 @@ class ServicoVaga(object):
             if vaga is None:
                 return {'erro': 404, 'msg': 'Vaga nao encontrada'}
 
-            evento = Evento(estadoEvento, vaga.id)
+            print("vaga:::: %s" % str(vaga.identificador))
+            evento = Evento(estadoEvento, vaga.identificador)
             vaga.setaEstado(estadoEvento)
             # vaga.setaEvento(evento)
 
@@ -137,5 +147,32 @@ class ServicoVaga(object):
             session.close()
         
         return {'msg': 'Evento adicionado'}
+
+
+    def atrelaUsuarioVaga(self, dados):
+        if 'idVaga' not in dados or 'idUsuario' not in dados:
+            return {'erro': 400, 'msg': 'Parametros incompletos'}
+        
+        idVaga = dados['idVaga']
+        idUsuario = dados['idUsuario']
+
+        session = Session()
+        try:
+            vaga = session.query(Vaga).filter(Vaga.id == idVaga).first()
+            if vaga is None:
+                return {'erro': 404, 'msg': 'Vaga nao encontrada'}
+
+            self._atrela_usuario_vaga(vaga, idUsuario, session)
+
+            session.commit()
+
+        except Exception as e:
+            print(str(e))
+            return {'erro': 500, 'msg': 'Erro ao atrelar vaga ao usuario'}
+        finally:
+            session.close()
+        
+        return {'msg': 'Vaga atrelada ao usuario'}
+
 
 servicoVaga = ServicoVaga()

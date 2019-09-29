@@ -61,7 +61,8 @@ class Usuario(Base):
             'sobrenome': self.sobrenome,
             'login': self.login,
             'senha': self.senha,
-            'tipo': TipoUsuario.tipo_str[self.tipo],
+            'tipo': self.tipo,
+            'tipo_str': TipoUsuario.tipo_str[self.tipo],
             'dataCadastro': self.data_cadastro
         }
 

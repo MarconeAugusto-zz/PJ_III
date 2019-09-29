@@ -55,6 +55,17 @@ def obtem_eventos(idVaga):
     resp = {'eventos': servicoVaga.obtemEventos(idVaga)}
     return jsonify(resp)
 
+# curl -i http://localhost:5000/eventos
+@bp_vaga.route('/eventos', methods=['GET'])
+def obtem_ultimos_eventos():
+    resp = servicoVaga.obtemUltimosEventos(request.json)
+    if 'erro' in resp:
+        abort(resp['erro'], resp.get('msg'))
+    
+    return jsonify(resp)
+
+
+# curl -i -H "Content-Type: application/json" -X POST -d '{"id":"1","estado":"1"}' http://localhost:5000/evento
 @bp_vaga.route('/evento', methods=['POST'])
 def adiciona_evento():
     if not request.json:
@@ -64,4 +75,16 @@ def adiciona_evento():
     if 'erro' in resp:
         abort(resp['erro'], resp.get('msg'))
 
+    return make_response(jsonify(resp), 201)
+
+# curl -i -H "Content-Type: application/json" -X POST -d '{"idVaga":"1","idUsuario":"1"}' http://localhost:5000/vaga/associa
+@bp_vaga.route('/vaga/associa', methods=['POST'])
+def associa_vaga():
+    if not request.json:
+        abort(404)
+    
+    resp = servicoVaga.atrelaUsuarioVaga(request.json)
+    if 'erro' in resp:
+        abort(resp['erro'], resp.get('msg'))
+    
     return make_response(jsonify(resp), 201)

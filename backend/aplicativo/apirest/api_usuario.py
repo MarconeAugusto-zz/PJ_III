@@ -22,10 +22,14 @@ def obtem_usuario(idUsuario):
     resp = {'usuario': servicoUsuario.obtem(idUsuario)}
     return jsonify(resp)
 
-
+# curl -i -H "Content-Type: application/json" -X DELETE http://localhost:5000/usuario/<ID>
 @bp_usuario.route('/usuario/<int:idUsuario>', methods=['DELETE'])
 def remove_usuario(idUsuario):
-    return jsonify(servicoUsuario.remove(idUsuario))
+    resp = servicoUsuario.removeUsuario(idUsuario)
+    if 'erro' in resp:
+        abort(resp['erro'], resp.get('msg'))
+
+    return make_response(jsonify(resp), 201)
 
 
 # curl -i -H "Content-Type: application/json" -X POST -d '{"identificadorVaga": "A01", "novoEstado": 1}' http://localhost:5000/usuario

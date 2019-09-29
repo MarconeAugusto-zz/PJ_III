@@ -1,13 +1,13 @@
 import React from 'react'
 import { Switch, Route, Redirect } from 'react-router'
 
-import UserCrud from '../user/UserCrud'
+import AdminUsuarios from '../user/AdminUsuarios'
 import PaginaLogin from '../login/PaginaLogin'
 import AdminInicio from '../user/AdminInicio'
 
 export default props =>
     <Switch>
         <Route exact path='/' component={AdminInicio} />
-        <Route path='/users' component={UserCrud} />
+        <Route path='/users' component={AdminUsuarios} />
         <Redirect from='*' to='/' />
     </Switch>

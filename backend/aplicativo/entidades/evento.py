@@ -11,10 +11,10 @@ class TipoEvento(object):
     ESTACIONOU_AUT_NOK = 4
 
     evento_str = {
-        SAIU_AUT_OK: 'Saiu AUT OK',
-        SAIU_AUT_NOK: 'Saiu AUT NOK',
-        ESTACIONOU_AUT_OK: 'Estacionou AUT OK',
-        ESTACIONOU_AUT_NOK: 'Estacionou AUT NOK'
+        SAIU_AUT_OK: 'Saiu com autenticação OK',
+        SAIU_AUT_NOK: 'Saiu sem autenticação',
+        ESTACIONOU_AUT_OK: 'Estacionou com autenticação OK',
+        ESTACIONOU_AUT_NOK: 'Estacionou sem autenticação'
     }
 
     lista_estados = [
@@ -30,8 +30,9 @@ class Evento(Base):
 
     id = Column(Integer, primary_key=True)
     tipo = Column(Integer)
+    vaga_id = Column(String, ForeignKey('vaga.identificador'), nullable=False)
     data = Column(DateTime)
-    vaga_id = Column(Integer, ForeignKey('vaga.id'), nullable=False)
+    # vaga_identificador = Column(Integer, ForeignKey('vaga.identificador'), nullable=False)
     # vaga_id = Column(Integer, ForeignKey('vaga.id'), primary_key=True)
 
     def __init__(self, tipo, vaga_id, data=None):
@@ -44,6 +45,7 @@ class Evento(Base):
         eventoJson = {
             'id': self.id,
             'tipo': TipoEvento.evento_str[self.tipo],
-            'data': self.data
+            'data': self.data,
+            'identificadorVaga': self.vaga_id
         }
         return eventoJson
