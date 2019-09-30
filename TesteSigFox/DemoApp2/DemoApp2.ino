@@ -96,45 +96,16 @@ void loop() {
 }
 
 void Send_Sensors(){
-  UINT16_t tempt, photo, pressure, id, status_id;
-  INT16_t x_g, y_g, z_g;
-  acceleration_xyz *xyz_g;
-  FLOATUNION_t a_g;
-
-  // Sending a float requires at least 4 bytes
-  // In this demo, the measure values (temperature, pressure, sensor) are scaled to ranged from 0-65535.
-  // Thus they can be stored in 2 bytes
+  UINT16_t id, status_id;
   id.number = (uint16_t) 105;
-  status_id.number = (uint16_t) 2;
-  tempt.number = (uint16_t) (tSensors->getTemp() * 100);
-  Serial.print("Temp: "); Serial.println((float)tempt.number/100);
-  pressure.number =(uint16_t) (tSensors->getPressure()/3);
-  Serial.print("Pressure: "); Serial.println((float)pressure.number*3);
-  photo.number = (uint16_t) (tSensors->getPhoto() * 1000);
-  Serial.print("Photo: "); Serial.println((float)photo.number/1000);
-
-  xyz_g = (acceleration_xyz *)malloc(sizeof(acceleration_xyz));
-  tSensors->getAccXYZ(xyz_g);
-  x_g.number = (int16_t) (xyz_g->x_g * 250);
-  y_g.number = (int16_t) (xyz_g->y_g * 250);
-  z_g.number = (int16_t) (xyz_g->z_g * 250);
-  Serial.print("Acc X: "); Serial.println((float)x_g.number/250);
-  Serial.print("Acc Y: "); Serial.println((float)y_g.number/250);
-  Serial.print("Acc Z: "); Serial.println((float)z_g.number/250);
-  Serial.print("\0");
-  free(xyz_g);
-
-  const uint8_t payloadSize = 12; //in bytes
-//  byte* buf_str = (byte*) malloc (payloadSize);
+  status_id.number = (uint16_t) 4;
+  const uint8_t payloadSize = 4; //in bytes
   uint8_t buf_str[payloadSize];
-
   buf_str[0] = id.bytes[0];
   buf_str[1] = id.bytes[1];
   buf_str[2] = status_id.bytes[0];
   buf_str[3] = status_id.bytes[1];
-
   Send_Pload(buf_str, payloadSize);
-//  free(buf_str);
 }
 
 void reedIR(){

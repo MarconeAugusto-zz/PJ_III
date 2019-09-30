@@ -15,9 +15,6 @@
 #include <WISOL.h>
 #include <Wire.h>
 #include <avr/wdt.h>
-//#include <Tsensors.h>
-//#include <math.h>
-//#include <SimpleTimer.h>
 
 //Constantes RFID
 #define SS_PIN 10
