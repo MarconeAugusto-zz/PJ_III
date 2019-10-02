@@ -33,9 +33,9 @@ def remove_usuario(idUsuario):
 
 
 # curl -i -H "Content-Type: application/json" -X POST -d '{"identificadorVaga": "A01", "novoEstado": 1}' http://localhost:5000/usuario
-# curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Joao","sobrenome":"Silva","login":"joao","senha":"1234","tipo":2}' http://localhost:5000/usuario
-# curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","login":"vini","senha":"1234"}' http://localhost:5000/usuario
-# curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","login":"vini","senha":"1234","tipo":1}' http://localhost:5000/usuario
+# curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Joao","sobrenome":"Silva","email":"joao","senha":"1234","tipo":2}' http://localhost:5000/usuario
+# curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini","senha":"1234"}' http://localhost:5000/usuario
+# curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini","senha":"1234","tipo":1}' http://localhost:5000/usuario
 @bp_usuario.route('/usuario', methods=['POST'])
 def adiciona_usuario():
     if not request.json:

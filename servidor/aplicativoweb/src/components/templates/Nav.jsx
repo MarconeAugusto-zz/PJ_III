@@ -14,6 +14,6 @@ export default props =>
             </Link>
             <Link to="/login">
                 <i className="fa fa-users"></i> Login
-            </Link>
+            </Link>        
         </nav>
     </aside>

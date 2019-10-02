@@ -30,16 +30,16 @@ class Usuario(Base):
     id = Column(Integer, primary_key=True)
     nome = Column(String(30))
     sobrenome = Column(String(30))
-    login = Column(String(50), nullable=False, unique=True)
+    email = Column(String(50), nullable=False, unique=True)
     senha = Column(String(20))
     tipo = Column(Integer)
     data_cadastro = Column(Date)
     vagas = relationship("Vaga", secondary=associacao_usuario_vaga, backref='usuario')
 
-    def __init__(self, nome, sobrenome, login, senha, tipo):
+    def __init__(self, nome, sobrenome, email, senha, tipo):
         self.nome = nome
         self.sobrenome = sobrenome
-        self.login = login
+        self.email = email
         self.senha = senha
         self.tipo = tipo
         self.data_cadastro = date.today()
@@ -59,7 +59,7 @@ class Usuario(Base):
             'id': self.id,
             'nome': self.nome,
             'sobrenome': self.sobrenome,
-            'login': self.login,
+            'email': self.email,
             'senha': self.senha,
             'tipo': self.tipo,
             'tipo_str': TipoUsuario.tipo_str[self.tipo],

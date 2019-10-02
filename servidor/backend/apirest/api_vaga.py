@@ -16,10 +16,16 @@ def obtem_vagas():
     resp = {'vagas': servicoVaga.obtem()}
     return jsonify(resp)
 
-# curl -i http://localhost:5000/vaga/livres
-@bp_vaga.route('/vaga/livres', methods=['GET'])
+# curl -i http://localhost:5000/vaga/disponiveis
+@bp_vaga.route('/vaga/disponiveis', methods=['GET'])
+def obtem_vagas_disponiveis():
+    resp = {'vagas': servicoVaga.obtemDisponiveis()}
+    return jsonify(resp)
+
+# curl -i http://localhost:5000/vaga/indisponiveis
+@bp_vaga.route('/vaga/indisponiveis', methods=['GET'])
 def obtem_vagas_livres():
-    resp = {'vagas': servicoVaga.obtemLivres()}
+    resp = {'vagas': servicoVaga.obtemIndisponiveis()}
     return jsonify(resp)
 
 # curl -i http://localhost:5000/vaga/1
@@ -31,7 +37,7 @@ def obtem_vaga(idVaga):
 
 @bp_vaga.route('/vaga/<int:idVaga>', methods=['DELETE'])
 def remove_vaga(idVaga):
-    return jsonify(servicoVaga.remove(idVaga))
+    return jsonify(servicoVaga.removeVaga(idVaga))
 
 
 # curl -i -H "Content-Type: application/json" -X POST -d '{"identificador":"A01","codigo":"B4AC41"}' http://localhost:5000/vaga
@@ -56,6 +62,7 @@ def obtem_eventos(idVaga):
     return jsonify(resp)
 
 # curl -i http://localhost:5000/eventos
+# curl -i -H "Content-Type: application/json" -X GET -d '{"limit":"20"}' http://localhost:5000/eventos
 @bp_vaga.route('/eventos', methods=['GET'])
 def obtem_ultimos_eventos():
     resp = servicoVaga.obtemUltimosEventos(request.json)

@@ -1,13 +1,13 @@
 # Adiciona usuarios
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","login":"vini","senha":"1234","tipo":1}' http://localhost:5000/usuario
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Marcone","sobrenome":"Louzada","login":"marcone","senha":"4567","tipo":1}' http://localhost:5000/usuario
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Daniel","sobrenome":"Cabral","login":"daniel","senha":"7890","tipo":1}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini@email.com.br","senha":"1234","tipo":1}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Marcone","sobrenome":"Louzada","email":"marcone@email.com.br","senha":"4567","tipo":1}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Daniel","sobrenome":"Cabral","email":"daniel@email.com.br","senha":"7890","tipo":1}' http://localhost:5000/usuario
 
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Joao","sobrenome":"Silva","login":"joao","senha":"11111","tipo":2}' http://localhost:5000/usuario
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Pedro","sobrenome":"Rosa","login":"pedro","senha":"22222","tipo":2}' http://localhost:5000/usuario
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Maria","sobrenome":"Souza","login":"maria","senha":"33333","tipo":2}' http://localhost:5000/usuario
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Camila","sobrenome":"Amaral","login":"camila","senha":"44444","tipo":2}' http://localhost:5000/usuario
-curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Roberto","sobrenome":"Elias","login":"roberto","senha":"55555","tipo":2}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Joao","sobrenome":"Silva","email":"joao@email.com.br","senha":"11111","tipo":2}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Pedro","sobrenome":"Rosa","email":"pedro@email.com.br","senha":"22222","tipo":2}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Maria","sobrenome":"Souza","email":"maria@email.com.br","senha":"33333","tipo":2}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Camila","sobrenome":"Amaral","email":"camila@email.com.br","senha":"44444","tipo":2}' http://localhost:5000/usuario
+curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Roberto","sobrenome":"Elias","email":"roberto@email.com.br","senha":"55555","tipo":2}' http://localhost:5000/usuario
 
 
 # Adiciona vagas

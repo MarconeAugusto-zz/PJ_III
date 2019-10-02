@@ -66,7 +66,8 @@ class Vaga(Base):
             'identificador': self.identificador,
             'codigo': self.codAutenticacao,
             'estado': self.estado,
-            'tipo': TipoVaga.tipo_str[self.tipo]
+            'tipo': self.tipo,
+            'tipo_str': TipoVaga.tipo_str[self.tipo]
         }
         return vagaJson
 

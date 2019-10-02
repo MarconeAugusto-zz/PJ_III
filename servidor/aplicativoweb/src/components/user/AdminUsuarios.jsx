@@ -10,7 +10,7 @@ const headerProps = {
 
 const baseUrl = 'http://localhost:5000/usuario'
 const initialState = {
-    user: { nome: '', sobrenome: '', login: '', senha: '', senha_c: '', tipo: '', tipo_str: ''},
+    user: { nome: '', sobrenome: '', email: '', senha: '', senha_c: '', tipo: '', tipo_str: ''},
     usuarios: []
 }
 
@@ -112,12 +112,12 @@ export default class AdminUsuarios extends Component {
                 <div className="row">
                     <div className="col-12 col-md-6">
                         <div className="form-group">
-                            <label>Login</label>
+                            <label>E-mail</label>
                             <input type="text" className="form-control"
-                                name="login"
-                                value={this.state.user.login}
+                                name="email"
+                                value={this.state.user.email}
                                 onChange={e => this.updateField(e)}
-                                placeholder="Digite o login ... " />
+                                placeholder="Digite o e-mail ... " />
                         </div>
                     </div>
                 </div>
@@ -190,7 +190,7 @@ export default class AdminUsuarios extends Component {
                     <tr>
                         <th>Nome</th>
                         <th>Sobrenome</th>
-                        <th>Login</th>
+                        <th>E-mail</th>
                         <th>Tipo</th>
                         <th>Data de Cadastro</th>
                         <th>*</th>
@@ -209,7 +209,7 @@ export default class AdminUsuarios extends Component {
                 <tr key={user.id}>
                     <td>{user.nome}</td>
                     <td>{user.sobrenome}</td>
-                    <td>{user.login}</td>
+                    <td>{user.email}</td>
                     <td>{user.tipo_str}</td>
                     <td>{user.dataCadastro}</td>
                     <td>

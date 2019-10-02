@@ -18,13 +18,14 @@ class ServicoVaga(object):
         vagasJson = None
         if vagas is not None:
             if type(vagas) == list:
+                vagas.sort(key=lambda vg: vg.identificador) 
                 vagasJson = [vg.converteParaJson() for vg in vagas]
             else:
                 vagasJson = vagas.converteParaJson()
 
         return vagasJson
 
-    def obtemLivres(self):
+    def obtemDisponiveis(self):
         session = Session()
         query = session.query(Vaga).filter(~Vaga.usuario.any())
         vagas = query.all()
@@ -37,7 +38,23 @@ class ServicoVaga(object):
             else:
                 vagasJson = vagas.converteParaJson()
 
-        return None        
+        return vagasJson        
+
+
+    def obtemIndisponiveis(self):
+        session = Session()
+        query = session.query(Vaga).filter(Vaga.usuario.any())
+        vagas = query.all()
+        session.close()
+
+        vagasJson = None
+        if vagas is not None:
+            if type(vagas) == list:
+                vagasJson = [vg.converteParaJson() for vg in vagas]
+            else:
+                vagasJson = vagas.converteParaJson()
+
+        return vagasJson   
 
     def novaVagaDadosValidados(self, dados):
         dadosObrigatorios = ['identificador', 'codigo']
@@ -62,6 +79,7 @@ class ServicoVaga(object):
         if 'tipo' in dados:
             vaga.setaTipo(dados['tipo'])
 
+        vagaJson = {}
         session = Session()
         try:
             session.add(vaga)
@@ -70,6 +88,7 @@ class ServicoVaga(object):
                 self._atrela_usuario_vaga(vaga, dados['idUsuario'], session)
 
             session.commit()
+            vagaJson = vaga.converteParaJson()
 
         except Exception as e:
             print(str(e))
@@ -77,7 +96,7 @@ class ServicoVaga(object):
         finally:
             session.close()
         
-        return {'msg': 'Vaga adicionada'}
+        return {'msg': 'Vaga adicionada', 'vaga': vagaJson}
 
 
     def obtemEventos(self, idVaga):
@@ -132,7 +151,6 @@ class ServicoVaga(object):
             if vaga is None:
                 return {'erro': 404, 'msg': 'Vaga nao encontrada'}
 
-            print("vaga:::: %s" % str(vaga.identificador))
             evento = Evento(estadoEvento, vaga.identificador)
             vaga.setaEstado(estadoEvento)
             # vaga.setaEvento(evento)
@@ -174,5 +192,25 @@ class ServicoVaga(object):
         
         return {'msg': 'Vaga atrelada ao usuario'}
 
+
+    def removeVaga(self, idVaga):
+        vagaJson = {}
+        session = Session()
+        try:
+            vaga = session.query(Vaga).filter(Vaga.id == idVaga).first()
+
+            if vaga is None:
+                return {'erro': 404, 'msg': 'Vaga nao encontrada'}
+
+            vagaJson = vaga.converteParaJson()
+            session.delete(vaga)
+            session.commit()
+        except Exception as e:
+            print(str(e))
+            return {'erro': 500, 'msg': 'Erro ao remover vaga', 'exc': str(e)}
+        finally:
+            session.close()
+        
+        return {'msg': 'Vaga removida', 'usuario': vagaJson}
 
 servicoVaga = ServicoVaga()

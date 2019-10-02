@@ -49,7 +49,7 @@ export default class AdminInicio extends Component {
 
     renderTableVagas() {
         return (
-            <table className="table table-hover-my mt-6">
+            <table className="table table-bordered table-hover-my mt-6">
                 <tbody>
                     {this.renderRowsVagas()}
                 </tbody>

@@ -22,7 +22,7 @@ class ServicoUsuario(object):
         return usuariosJson
 
     def novoUsuarioDadosValidados(self, dados):
-        dadosObrigatorios = ['nome', 'sobrenome', 'login', 'senha', 'tipo']
+        dadosObrigatorios = ['nome', 'sobrenome', 'email', 'senha', 'tipo']
         return all(dado in dados for dado in dadosObrigatorios)
 
     def adiciona(self, dados):
@@ -30,7 +30,7 @@ class ServicoUsuario(object):
             # Faltando parametros.. retorna um erro
             return {'erro': 400, 'msg': 'Parametros incompletos'}
 
-        usuario = Usuario(dados['nome'], dados['sobrenome'], dados['login'], dados['senha'], dados['tipo'])
+        usuario = Usuario(dados['nome'], dados['sobrenome'], dados['email'], dados['senha'], dados['tipo'])
         usuarioJson = {}
 
         session = Session()

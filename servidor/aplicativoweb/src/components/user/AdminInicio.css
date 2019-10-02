@@ -4,15 +4,17 @@
 }
 
 .status-vaga-1 {
-    background-color: aquamarine;
+    background-color: green;
+    border-color: red;
+    border-style: solid;
 }
 
 .status-vaga-2 {
-    background-color: yellow
+    background-color: aquamarine;
 }
 
 .status-vaga-3 {
-    background-color: darkred;
+    background-color: orange;
 }
 
 .status-vaga-4 {
