@@ -16,7 +16,7 @@
 #include <WISOL.h>
 #include <Tsensors.h>
 #include <Wire.h>
-#include <math.h>
+//#include <math.h>
 #include <SimpleTimer.h>
 #include <avr/wdt.h>
 

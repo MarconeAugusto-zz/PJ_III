@@ -17,22 +17,23 @@
 #include <avr/wdt.h>
 
 //Constantes RFID
-#define SS_PIN 10
-#define RST_PIN 11
+#define SS_PIN 53
+#define RST_PIN 49
 //Constantes Ultrassônico
-#define pino_trigger 49
-#define pino_echo 48
+#define pino_trigger 47
+#define pino_echo 46
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); //Instância MFRC522.
 Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
 
 //Variáveis
-String mensagem,IdVaga = "VG01";   //exemplo
-char msgSigfox[3];
-int watchdogCounter, redLED = 6, ledVerde = 12, buzzer = 9, estado, estado_tmp, tempoEspera = 20000; // 20 segundos.
+String mensagem,IdVaga = "VAGA-01";   //exemplo 7 bytes, limitado a 8 bytes no node-red
+char msgSigfox[9];
+int watchdogCounter, redLED = 6, ledVerde = 45, buzzer = 48, estado, estado_tmp, tempoEspera = 10000; // 10 segundos.
 float distancia = 25.0, dist; // distancia utilizada 25 cm
 boolean autentica_tmp, autentica = false, debug = true;
 uint8_t buttonCounter, PublicModeSF, stateLED, ledCounter,buttonPin = A1;
+
 
 // ThreadController que controlará todos os threads
 ThreadController controll = ThreadController();
@@ -46,21 +47,6 @@ Thread hisThread = Thread();
 
 Isigfox *Isigfox = new WISOL();
 
-typedef union{
-    float number;
-    uint8_t bytes[4];
-} FLOATUNION_t;
-
-typedef union{
-    uint16_t number;
-    uint8_t bytes[2];
-} UINT16_t;
-
-typedef union{
-    int16_t number;
-    uint8_t bytes[2];
-} INT16_t;
-
 void configInit() {
   Serial.begin(9600);   // Inicia a serial
   Serial.println();
@@ -71,8 +57,8 @@ void configInit() {
   pinMode(buzzer , OUTPUT);
   Serial.println("Iniciando Sensor Ultrassonico...");
   Serial.println();
-  SPI.begin();          // Inicia o barramento SPI
-  mfrc522.PCD_Init();   // Inicia MFRC522
+//  SPI.begin();          // Inicia o barramento SPI
+//  mfrc522.PCD_Init();   // Inicia MFRC522
   digitalWrite(ledVerde , LOW); // identificaçao visual para sensor ultrassonico
   estado = 2; // inicia no estado 2
   Serial.println("Iniciando aplicacao...");
@@ -113,9 +99,11 @@ void setup() {
   controll2.add(&hisThread);
   controll3.add(myThread2);
   buzzer_init();
+  strcpy(msgSigfox,IdVaga.c_str());
 }
 
 void loop() {
+  //UINT16_t status_vaga;
   estado_tmp = estado;
   wdt_reset();
   watchdogCounter = 0;
@@ -143,13 +131,11 @@ void loop() {
     if (autentica_tmp == true) {
       autentica = autentica_tmp;
       mensagem = "Vaga: " + IdVaga + ", ocupada e autenticada com sucesso.";
-      msgSigfox[1] = '3';
       estado_tmp = 3;
     } else {
       autentica = autentica_tmp;
       //autentica = false;
       mensagem = "Vaga: " + IdVaga + ", ocupada e não autenticada.";
-      msgSigfox[1] = '4';
       estado_tmp = 4;
     }
   }
@@ -163,7 +149,6 @@ void loop() {
     }
     if (dist > distancia) {
       mensagem = "Vaga: " + IdVaga + ", livre e autenticada.";
-      msgSigfox[1] = '1';;
       estado_tmp = 1;
     } else {
       autentica_tmp = autentica;
@@ -175,23 +160,12 @@ void loop() {
       Serial.println("if(dist > distancia and (estado_tmp == 3 or estado_tmp == 4))");
     }
     mensagem = "Vaga: " + IdVaga + ", livre com saida não autenticada.";
-    msgSigfox[1] = '2';
     estado_tmp = 2;
   }
 
   if (estado_tmp != estado) {
     // invocar método para enviar via sigfox
-    SendMSG(msgSigfox);
-    if (debug) {
-      delay(500);
-      Serial.println();
-      Serial.println(mensagem);
-      Serial.print("Maensagem Sigfox: ");
-      Serial.print("Maensagem Sigfox: ");
-      Serial.println(msgSigfox[0]+msgSigfox[1]);
-      Serial.println();
-      delay(500);
-    }
+    SendMSG(estado_tmp);
   } else {
     delay(500);
     if (debug) {
@@ -210,6 +184,8 @@ void getDistancia() {
 }
 
 void getAutenticacao() {
+  SPI.begin();          // Inicia o barramento SPI
+  mfrc522.PCD_Init();   // Inicia MFRC522
   if (debug) {
     Serial.println("Verifica RFID"); // debug
   }
@@ -268,8 +244,6 @@ void buzzer_rejeitado() {
   tone(buzzer, frequencia, 500);
 }
 
-
-
 void Send_Pload(uint8_t *sendData, const uint8_t len){
   // No downlink message require
   recvMsg *RecvMsg;
@@ -282,13 +256,20 @@ void Send_Pload(uint8_t *sendData, const uint8_t len){
   free(RecvMsg);
 }
 
-
-void SendMSG(char msgSigfox[3]){
-  const uint8_t payloadSize = 3; //in bytes
+void SendMSG(int estado_tmp){
+  msgSigfox[8] = (char)estado_tmp;
+  const uint8_t payloadSize = 9; //in bytes
 //  byte* buf_str = (byte*) malloc (payloadSize);
   uint8_t buf_str[payloadSize];
   buf_str[0] = msgSigfox[0];
   buf_str[1] = msgSigfox[1];
+  buf_str[2] = msgSigfox[2];
+  buf_str[3] = msgSigfox[3];
+  buf_str[4] = msgSigfox[4];
+  buf_str[5] = msgSigfox[5];
+  buf_str[6] = msgSigfox[6];
+  buf_str[7] = msgSigfox[7];
+  buf_str[8] = msgSigfox[8];
   Send_Pload(buf_str, payloadSize);
 }
 

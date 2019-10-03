@@ -9,11 +9,12 @@
 #include <ThreadController.h>
 
 //Constantes RFID
-#define SS_PIN 10
-#define RST_PIN 11
+#define SS_PIN 53
+#define RST_PIN 49
 //Constantes Ultrassônico
-#define pino_trigger 49
-#define pino_echo 48
+#define pino_trigger 47
+#define pino_echo 46
+
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); //Instância MFRC522.
 Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
@@ -22,7 +23,7 @@ Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
 String IdVaga = "VG01";   //exemplo
 String mensagem;
 
-int ledVerde = 12, buzzer = 9, estado, estado_tmp, tempoEspera = 10000; // 10 segundos.
+int ledVerde = 45, buzzer = 48, estado, estado_tmp, tempoEspera = 10000; // 10 segundos.
 
 float distancia = 20.0, dist; // distancia utilizada 20 cm
 
