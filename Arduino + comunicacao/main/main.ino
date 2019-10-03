@@ -1,4 +1,4 @@
-//Integração sesnsor ultrassom, RFID e Sigfox
+//Sensor ultrassom, RFID e Sigfox
 ///////Estados Representados por inteiros de 1 a 4
 ///////estado 1 = vaga livre e autenticação OK
 ///////estado 2 = vaga livre e autenticação NOK
@@ -57,8 +57,6 @@ void configInit() {
   pinMode(buzzer , OUTPUT);
   Serial.println("Iniciando Sensor Ultrassonico...");
   Serial.println();
-//  SPI.begin();          // Inicia o barramento SPI
-//  mfrc522.PCD_Init();   // Inicia MFRC522
   digitalWrite(ledVerde , LOW); // identificaçao visual para sensor ultrassonico
   estado = 2; // inicia no estado 2
   Serial.println("Iniciando aplicacao...");
@@ -99,11 +97,10 @@ void setup() {
   controll2.add(&hisThread);
   controll3.add(myThread2);
   buzzer_init();
-  strcpy(msgSigfox,IdVaga.c_str());
+  strcpy(msgSigfox,IdVaga.c_str());//copia a string com id_vaga para a mensagem a ser enviada
 }
 
 void loop() {
-  //UINT16_t status_vaga;
   estado_tmp = estado;
   wdt_reset();
   watchdogCounter = 0;
@@ -210,7 +207,6 @@ void getAutenticacao() {
   }
   Serial.println();
   Serial.println();
-  //Serial.print("Mensagem : ");
   conteudo.toUpperCase();
   if (conteudo.substring(1) == "40 1F 63 46") { //UID 1 - Chaveiro
     if (autentica_tmp == false) {
@@ -220,12 +216,11 @@ void getAutenticacao() {
     }
     //Serial.println("Vaga autenticada");
     buzzer_aprovado();
-    delay(2500);
+    delay(1500);
   } else {
     autentica_tmp = false;
-    //Serial.println("Vaga nao autenticada");
     buzzer_rejeitado();
-    delay(2500);
+    delay(1500);
   }
 }
 
@@ -274,8 +269,8 @@ void SendMSG(int estado_tmp){
 }
 
 void sendInterval(){
-  Serial.println("Time");
-  SendMSG("55"); //sem alteracao
+  Serial.println("Mensagem temporizada");
+  SendMSG(5); //sem alteracao
 }
 
 void watchdogSetup(void) { // Enable watchdog timer
