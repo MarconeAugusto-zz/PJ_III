@@ -27,13 +27,12 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); //Instância MFRC522.
 Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
 
 //Variáveis
-String mensagem,IdVaga = "VAGA-01";   //exemplo 7 bytes, limitado a 8 bytes no node-red
+String mensagem, IdVaga = "A01";  //exemplo 7 bytes, limitado a 8 bytes no node-red
 char msgSigfox[9];
 int watchdogCounter, redLED = 6, ledVerde = 45, buzzer = 48, estado, estado_tmp, tempoEspera = 10000; // 10 segundos.
 float distancia = 25.0, dist; // distancia utilizada 25 cm
 boolean autentica_tmp, autentica = false, debug = true;
-uint8_t buttonCounter, PublicModeSF, stateLED, ledCounter,buttonPin = A1;
-
+uint8_t PublicModeSF, stateLED, ledCounter;
 
 // ThreadController que controlará todos os threads
 ThreadController controll = ThreadController();
@@ -69,7 +68,7 @@ void setup() {
   Wire.setClock(100000);
   configInit();
   // Init watchdog timer
-  watchdogSetup();
+  //watchdogSetup();
   watchdogCounter = 0;
   // WISOL test
   flagInit = -1;
@@ -88,16 +87,16 @@ void setup() {
   // Configure Threads
   myThread->onRun(getDistancia);
   myThread->setInterval(500);  //verifica o sensor ultrassonico
-  myThread2->onRun(sendInterval);
-  myThread2->setInterval(600000);  //intervalo para envio de mensagens
+  //  myThread2->onRun(sendInterval);
+  //  myThread2->setInterval(600000);  //intervalo para envio de mensagens
   hisThread.onRun(getAutenticacao);
   hisThread.setInterval(500);  //verifica o RFID
   // add as Threads ao controle
   controll.add(myThread);
   controll2.add(&hisThread);
-  controll3.add(myThread2);
+  //  controll3.add(myThread2);
   buzzer_init();
-  strcpy(msgSigfox,IdVaga.c_str());//copia a string com id_vaga para a mensagem a ser enviada
+  strcpy(msgSigfox, IdVaga.c_str()); //copia a string com id_vaga para a mensagem a ser enviada
 }
 
 void loop() {
@@ -106,7 +105,7 @@ void loop() {
   watchdogCounter = 0;
   controll.run();   //metodo verifica distancia
   controll2.run();  //metodo verifica RFID
-  controll3.run();  //metodo envia mensagem a cada 10 minutos
+  //  controll3.run();  //metodo envia mensagem a cada 10 minutos
   if (dist > distancia) {
     digitalWrite(ledVerde , LOW);  // identificaçao visual para sensor ultrassonico
   }
@@ -125,11 +124,17 @@ void loop() {
     while (waiting < tempoEspera) {
       getAutenticacao(); // tempo para autenticar a vaga
     }
-    if (autentica_tmp == true) {
+    getDistancia();
+    if (autentica_tmp == true and dist < distancia) {
       autentica = autentica_tmp;
       mensagem = "Vaga: " + IdVaga + ", ocupada e autenticada com sucesso.";
       estado_tmp = 3;
-    } else {
+    }
+    else if (autentica_tmp == false and dist > distancia) {
+      mensagem = "Vaga: " + IdVaga + ", livre com saida não autenticada.";
+      estado_tmp = 2;
+    }
+    else {
       autentica = autentica_tmp;
       //autentica = false;
       mensagem = "Vaga: " + IdVaga + ", ocupada e não autenticada.";
@@ -239,7 +244,7 @@ void buzzer_rejeitado() {
   tone(buzzer, frequencia, 500);
 }
 
-void Send_Pload(uint8_t *sendData, const uint8_t len){
+void Send_Pload(uint8_t *sendData, const uint8_t len) {
   // No downlink message require
   recvMsg *RecvMsg;
   RecvMsg = (recvMsg *)malloc(sizeof(recvMsg));
@@ -251,10 +256,10 @@ void Send_Pload(uint8_t *sendData, const uint8_t len){
   free(RecvMsg);
 }
 
-void SendMSG(int estado_tmp){
+void SendMSG(int estado_tmp) {
   msgSigfox[8] = (char)estado_tmp;
   const uint8_t payloadSize = 9; //in bytes
-//  byte* buf_str = (byte*) malloc (payloadSize);
+  //  byte* buf_str = (byte*) malloc (payloadSize);
   uint8_t buf_str[payloadSize];
   buf_str[0] = msgSigfox[0];
   buf_str[1] = msgSigfox[1];
@@ -268,18 +273,18 @@ void SendMSG(int estado_tmp){
   Send_Pload(buf_str, payloadSize);
 }
 
-void sendInterval(){
+void sendInterval() {
   Serial.println("Mensagem temporizada");
   SendMSG(5); //sem alteracao
 }
 
-void watchdogSetup(void) { // Enable watchdog timer
-  cli();  // disable all interrupts
-  wdt_reset(); // reset the WDT timer
-  WDTCSR |= B00011000;
-  WDTCSR = B01110001;
-  sei();
-}
+//void watchdogSetup(void) { // Enable watchdog timer
+//  cli();  // disable all interrupts
+//  wdt_reset(); // reset the WDT timer
+//  WDTCSR |= B00011000;
+//  WDTCSR = B01110001;
+//  sei();
+//}
 
 void watchdog_disable() { // Disable watchdog timer
   cli();  // disable all interrupts
@@ -288,37 +293,33 @@ void watchdog_disable() { // Disable watchdog timer
   sei();
 }
 
-
 ISR(WDT_vect) // Watchdog timer interrupt.
 {
-// Include your code here - be careful not to use functions they may cause the interrupt to hang and
-// prevent a reset.
+  // Include your code here - be careful not to use functions they may cause the interrupt to hang and
+  // prevent a reset.
   Serial.print("WD reset: ");
   Serial.println(watchdogCounter);
   watchdogCounter++;
   if (watchdogCounter == 20) { // reset CPU after about 180 s
-      // Reset the CPU next time
-      // Enable WD reset
-      cli();  // disable all interrupts
-      WDTCSR |= B00011000;
-      WDTCSR = B01111001;
-      sei();
-      wdt_reset();
+    // Reset the CPU next time
+    // Enable WD reset
+    cli();  // disable all interrupts
+    WDTCSR |= B00011000;
+    WDTCSR = B01111001;
+    sei();
+    wdt_reset();
   } else if (watchdogCounter < 8) {
     wdt_reset();
   }
 }
 
-
-void GetDeviceID(){
+void GetDeviceID() {
   recvMsg *RecvMsg;
   const char msg[] = "AT$I=10";
-
   RecvMsg = (recvMsg *)malloc(sizeof(recvMsg));
   Isigfox->sendMessage(msg, 7, RecvMsg);
-
   Serial.print("Device ID: ");
-  for (int i=0; i<RecvMsg->len; i++){
+  for (int i = 0; i < RecvMsg->len; i++) {
     Serial.print(RecvMsg->inData[i]);
   }
   Serial.println("");
