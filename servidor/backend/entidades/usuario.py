@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from enum import Enum
 from datetime import date
+from flask_bcrypt import bcrypt
 
 from entidades.base import Base
 
@@ -31,7 +32,7 @@ class Usuario(Base):
     nome = Column(String(30))
     sobrenome = Column(String(30))
     email = Column(String(50), nullable=False, unique=True)
-    senha = Column(String(20))
+    senha = Column(String(255))
     tipo = Column(Integer)
     data_cadastro = Column(Date)
     vagas = relationship("Vaga", secondary=associacao_usuario_vaga, backref='usuario')
@@ -40,7 +41,7 @@ class Usuario(Base):
         self.nome = nome
         self.sobrenome = sobrenome
         self.email = email
-        self.senha = senha
+        self.senha = Usuario.getHashSenha(senha)
         self.tipo = tipo
         self.data_cadastro = date.today()
         vagas = []
@@ -70,3 +71,15 @@ class Usuario(Base):
             usuarioJson['vagas'] = [vg.converteParaJson() for vg in self.vagas]
 
         return usuarioJson
+
+
+    @staticmethod
+    def getHashSenha(senha):
+        return bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
+    
+    @staticmethod
+    def checkSenha(senhaInformada, senhaBD):
+        if bcrypt.checkpw(senhaInformada.encode('utf-8'), senhaBD):
+            return True
+        else:
+            return False

@@ -1,11 +1,11 @@
 import sys
 # print(sys.path)
 
+from apirest.aplicacao import app
 from entidades.vaga import Vaga
 from entidades.usuario import Usuario
 from entidades.evento import Evento
 from entidades.base import engine, Base
-from apirest.aplicacao import app
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)

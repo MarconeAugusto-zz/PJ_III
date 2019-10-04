@@ -83,5 +83,22 @@ class ServicoUsuario(object):
         return {'msg': 'Usuario removido', 'usuario': usuarioJson}
 
 
+    def checkLogin(self, dados):
+        if 'email' not in dados or 'senha' not in dados:
+            return {'erro': 400, 'msg': 'Parametros incompletos'}
+        
+        session = Session()
+        usuario = session.query(Usuario).filter(Usuario.email == dados['email']).first()
+        session.close()
+
+        if  not usuario:
+            return {'erro': 403, 'msg': 'Usuario nao encontrado'}
+            
+        if not Usuario.checkSenha(dados['senha'], usuario.senha):
+            return {'erro': 401, 'msg': 'Senha invalida'}
+        
+        return {'id': usuario.id, 'email': usuario.email, 'tipo': usuario.tipo}
+
+
 
 servicoUsuario = ServicoUsuario()
