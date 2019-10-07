@@ -2,7 +2,6 @@ from entidades.vaga import Vaga
 from entidades.usuario import Usuario
 from entidades.evento import Evento
 from entidades.base import Session
-import re
 
 class ServicoVaga(object):
     def obtem(self, idVaga=None):
@@ -144,8 +143,7 @@ class ServicoVaga(object):
         if 'id' not in dados or 'estado' not in dados:
             return {'erro': 400, 'msg': 'Parametros incompletos'}
         
-        reg = re.compile("\w+")
-        vagaIdent = reg.match(dados['id'])[0]
+        vagaIdent = str(dados['id']).replace(' ', '')
         estadoEvento = dados['estado']
         session = Session()
         try:
