@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import axios from 'axios'
+// import axios from 'axios'
 import Main from '../templates/Main'
+import api from '../../services/api'
 
 const headerProps = {
     icon: 'car',
@@ -8,7 +9,7 @@ const headerProps = {
     subtitle: 'Cadastro de vagas: Incluir, Listar, Alterar e Excluir!'
 }
 
-const baseUrl = 'http://localhost:5000/vaga'
+// const baseUrl = 'http://localhost:5000/vaga'
 const initialState = {
     vaga: { id: '', identificador: '', tipo: '', codigo: ''},
     vagasDisponiveis: [],
@@ -19,15 +20,14 @@ export default class Vagas extends Component {
     state = { ...initialState }
 
     componentWillMount() {
-        let url = baseUrl + '/disponiveis'
-        axios(url).then(resp => {
+        api.get("/vaga").then(resp => {
             this.setState({ vagasDisponiveis: resp.data.vagas })
         })
 
-        url = baseUrl + '/indisponiveis'
-        axios(url).then(resp => {
+        api.get("/indisponiveis").then(resp => {
             this.setState({ vagasIndisponiveis: resp.data.vagas })
         })
+
     }
 
     clear() {
@@ -36,13 +36,26 @@ export default class Vagas extends Component {
 
     save() {
         const vaga = this.state.vaga
-        const method = vaga.id ? 'put' : 'post'
-        const url = vaga.id ? `${baseUrl}/${vaga.id}` : baseUrl
-        axios[method](url, vaga)
-            .then(resp => {
+
+        if (vaga.id) {
+            api.put(`/vaga/${vaga.id}`, vaga).then(resp => {
                 const vagas = this.getUpdatedList(resp.data.vaga)
                 this.setState({ vaga: initialState.vaga, vagasDisponiveis: vagas })
             })
+        } else {
+            api.post("/vaga", vaga).then(resp => {
+                const vagas = this.getUpdatedList(resp.data.vaga)
+                this.setState({ vaga: initialState.vaga, vagasDisponiveis: vagas })
+            })
+        }
+        
+        // const method = vaga.id ? 'put' : 'post'
+        // const url = vaga.id ? `${baseUrl}/${vaga.id}` : baseUrl
+        // axios[method](url, vaga)
+        //     .then(resp => {
+        //         const vagas = this.getUpdatedList(resp.data.vaga)
+        //         this.setState({ vaga: initialState.vaga, vagasDisponiveis: vagas })
+        //     })
     }
 
     getUpdatedList(vaga, add = true) {
@@ -132,14 +145,22 @@ export default class Vagas extends Component {
         let disponivel = false
         if (this.state.vagasDisponiveis.filter(v => v.id == vaga.id).length > 0)
             disponivel = true
-        
-        axios.delete(`${baseUrl}/${vaga.id}`).then(resp => {
+
+        api.delete(`/vaga/${vaga.id}`).then(resp => {
             const vagas = this.getUpdatedList(vaga, false)
             if (disponivel)
                 this.setState({ vagasDisponiveis: vagas })
             else
-                this.setState({ vagasIndisponiveis: vagas })
+                this.setState({ vagasinDisponiveis: vagas })
         })
+
+        // axios.delete(`${baseUrl}/${vaga.id}`).then(resp => {
+        //     const vagas = this.getUpdatedList(vaga, false)
+        //     if (disponivel)
+        //         this.setState({ vagasDisponiveis: vagas })
+        //     else
+        //         this.setState({ vagasIndisponiveis: vagas })
+        // })
     }
 
     renderTable() {

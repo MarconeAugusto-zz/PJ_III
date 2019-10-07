@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import axios from 'axios'
+import { Modal, Button } from 'react-bootstrap'
+import api from '../../services/api'
 import Main from '../templates/Main'
 import './AdminInicio.css'
 
@@ -9,11 +10,18 @@ const headerProps = {
     subtitle: 'Bem vindo a sessão de administrador'
 }
 
-const baseUrl = 'http://localhost:5000/'
 const initialState = {
     vagas: [],
     usuariosVagas: [],
     eventos: []
+}
+
+const detalhesVaga = {
+    identificadorVaga: '',
+    responsaveis: '',
+    estado: '',
+    telefones: '',
+    emails: ''
 }
 
 export default class AdminInicio extends Component {
@@ -21,30 +29,23 @@ export default class AdminInicio extends Component {
     state = { ...initialState }
 
     componentWillMount() {
-        let url = baseUrl + 'vaga'
-        axios(url).then(resp => {
+        this.setState({ modalShow: false })
+
+        api.get('/vaga').then(resp => {
             this.setState({ vagas: resp.data.vagas })
         })
 
-        url = baseUrl + 'usuarios/vagas'
-        axios(url).then(resp => {
+        api.get('/usuarios/vagas').then(resp => {
             this.setState({ usuariosVagas: resp.data.usuarios })
         })
 
-        url = baseUrl + 'eventos'
-        axios(url, {
+        api.get('/eventos', {
             params: {
                 limit: 20
             }
         }).then(resp => {
             this.setState({ eventos: resp.data })
         })
-        // this.state.vagas.forEach(v => {
-        //     const k = v
-        //     const chave = k.identificador
-        //     // delete k.identificador
-        //     this.setState({ chave: k })
-        // }) 
     }
 
     renderTableVagas() {
@@ -90,7 +91,8 @@ export default class AdminInicio extends Component {
                 <tr key={i}>
                     {row.map((col, j) =>
                         <td key={j} className={'status-vaga-' + col.estado} align="center"
-                            data-toggle="tooltip" data-placement="top" title={this.getCellToolTip(col.estado)}>
+                            data-toggle="tooltip" data-placement="top" title={this.getCellToolTip(col.estado)}
+                            idVaga={col} onClick={e => this.abreDetalhesDaVaga(e, col)}>
                             {col.identificador}
                             </td>
                     )}
@@ -128,6 +130,49 @@ export default class AdminInicio extends Component {
         })
     }
 
+    setModalShow(val) {
+        this.setState({ modalShow : val })
+    }
+
+    abreDetalhesDaVaga(e, vaga) {
+        console.log(vaga)
+        detalhesVaga.identificadorVaga = vaga.identificador
+        detalhesVaga.responsaveis = 'João Silva, Maria Pereira'
+        detalhesVaga.estado = vaga.estado_str
+        detalhesVaga.telefones = '99988-1234 (João), 98812-4321 (Maria)'
+        detalhesVaga.emails = 'joao@email.com.br (João), maria@email.com.br (Maria)'
+        this.setModalShow(true)
+    } 
+
+    MyVerticallyCenteredModal(props) {
+        return (
+          <Modal
+            {...props}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title id="contained-modal-title-vcenter">
+                Detalhes da Vaga
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <h4>VAGA: {detalhesVaga.identificadorVaga}</h4>
+              <br />
+              <p><b>Responsáveis:</b> {detalhesVaga.responsaveis}</p>
+              <p><b>Estado da vaga:</b> {detalhesVaga.estado}</p>
+              <p><b>Telefones:</b> {detalhesVaga.telefones}</p>
+              <p><b>E-mails:</b> {detalhesVaga.emails}</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button onClick={props.onHide}>Fechar</Button>
+            </Modal.Footer>
+          </Modal>
+        );
+      }
+
+
     render() {
         return (
             <Main {...headerProps}>
@@ -136,6 +181,9 @@ export default class AdminInicio extends Component {
                 <br></br>
                 <h2>Últimos eventos</h2>
                 {this.renderTableEventos()}
+                <this.MyVerticallyCenteredModal
+                    show={this.state.modalShow}
+                    onHide={() => this.setModalShow(false)}/>
             </Main>
         )
     }

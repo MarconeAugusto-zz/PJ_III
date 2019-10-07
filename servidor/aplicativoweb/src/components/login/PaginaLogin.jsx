@@ -1,30 +1,52 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
-import axios from 'axios'
+import api from '../../services/api'
+import { login, logout } from '../../services/auth'
 import './PaginaLogin.css'
 import logo from '../../assets/imgs/simova_logo.png'
 
-const baseUrl = 'http://localhost:5000/login'
 const initialState = {
-    user: { email: '', password: '' },
+    email: '',
+    senha: '',
+    erro: null
 }
 
 export default class PaginaLogin extends Component {
 
     state = { ...initialState }
 
-    makeLogin() {
-        console.log(this.state.user.email)
-        console.log(this.state.user.password)
-        this.props.history.push('/HomeAdmin')
-        // return <Redirect to='/HomeAdmin' />
-    }
+    makeLogin = async e => {
+        e.preventDefault();
+        const { email, senha } = this.state;
+        if (!email || !senha) {
+            this.setState({ erro: "Informe e-mail e senha para efetuar o login" });
+        } else {
+          try {
+            const response = await api.post("/usuario/login", { email, senha });
+            login(response.data.token);
+            if (response.data.tipo == 1)
+                this.props.history.push("/HomeAdmin");
+            else
+                this.props.history.push("/Home")
+          } catch (err) {
+            this.setState({
+              erro: "Login não pôde ser realizado. Verifique suas credenciais."
+            });
+          }
+        }
+      };
 
-    updateField(event) {
-        const user = { ...this.state.user }
-        user[event.target.name] = event.target.value
-        this.setState({user})
-    }
+    // makeLogin() {
+    //     console.log(this.state.user.email)
+    //     console.log(this.state.user.password)
+    //     this.props.history.push('/HomeAdmin')
+    //     // return <Redirect to='/HomeAdmin' />
+    // }
+
+    // updateField(event) {
+    //     const state = { ...this.state }
+    //     state[event.target.name] = event.target.value
+    //     this.setState({state})
+    // }
 
     renderLogin() {
         return (
@@ -38,16 +60,15 @@ export default class PaginaLogin extends Component {
                             <h1 className="h3 mb-3 font-weight-normal">Faça o login</h1>
                             <input type="email" className="form-control"
                                 placeholder="E-mail" name="email"
-                                value={this.state.user.email}
-                                onChange={e => this.updateField(e)}
+                                onChange={e => this.setState({ email: e.target.value })}
                                 required autoFocus />
                             <input type="password" className="form-control"
                                 placeholder="Senha" name="password"
-                                value={this.state.user.password}
-                                onChange={e => this.updateField(e)}
+                                onChange={e => this.setState({ senha: e.target.value })}
                                 required />
                             <button className="btn btn-lg btn-primary btn-block" type="submit"
                                 onClick={e => this.makeLogin(e)}>Entrar</button>
+                            {this.renderErro()}
                             <p className="mt-5 mb-3 text-muted">&copy; 2019</p>
                         </div>
                     </div>
@@ -57,9 +78,27 @@ export default class PaginaLogin extends Component {
         )
     }
 
+    trataProps() {
+        if (this.props.history.action == "PUSH") {
+            logout()
+            window.location.reload()
+        }
+    }
+
+    renderErro() {
+        if (this.state.erro) {
+            return (
+                <div>
+                    <p className="mt-5 mb-3 text-danger">{this.state.erro}</p>
+                </div>
+            )
+        }
+    }
+
     render() {
         return (
             <main>
+                {this.trataProps()}
                 {this.renderLogin()}
             </main>
         )

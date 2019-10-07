@@ -66,6 +66,7 @@ class Vaga(Base):
             'identificador': self.identificador,
             'codigo': self.codAutenticacao,
             'estado': self.estado,
+            'estado_str': EstadoVaga.estado_str[self.estado],
             'tipo': self.tipo,
             'tipo_str': TipoVaga.tipo_str[self.tipo]
         }

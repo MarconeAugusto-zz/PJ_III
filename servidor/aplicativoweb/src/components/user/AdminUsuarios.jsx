@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import Main from '../templates/Main'
+import api from '../../services/api'
 
 const headerProps = {
     icon: 'users',
@@ -8,7 +8,7 @@ const headerProps = {
     subtitle: 'Cadastro de usuários: Incluir, Listar, Alterar e Excluir!'
 }
 
-const baseUrl = 'http://localhost:5000/usuario'
+// const baseUrl = 'http://localhost:5000/usuario'
 const initialState = {
     user: { nome: '', sobrenome: '', email: '', senha: '', senha_c: '', tipo: '', tipo_str: ''},
     usuarios: []
@@ -18,7 +18,7 @@ export default class AdminUsuarios extends Component {
     state = { ...initialState }
 
     componentWillMount() {
-        axios(baseUrl).then(resp => {
+        api.get("/usuario").then(resp => {
             this.setState({ usuarios: resp.data.usuarios })
         })
     }
@@ -39,15 +39,25 @@ export default class AdminUsuarios extends Component {
             return
         }
 
-        console.log(user)
-        const method = user.id ? 'put' : 'post'
-        const url = user.id ? `${baseUrl}/${user.id}` : baseUrl
-        axios[method](url, user)
-            .then(resp => {
+        if (user.id) {
+            api.put(`/usuario/${user.id}`, user).then(resp => {
                 const usuarios = this.getUpdatedList(resp.data.usuario)
                 this.setState({ user: initialState.user, usuarios })
             })
-        console.log(this.state.usuarios)
+        } else {
+            api.post("/usuario", user).then(resp => {
+                const usuarios = this.getUpdatedList(resp.data.usuario)
+                this.setState({ user: initialState.user, usuarios })
+            })
+        }
+        
+        // const method = user.id ? 'put' : 'post'
+        // const url = user.id ? `${baseUrl}/${user.id}` : baseUrl
+        // axios[method](url, user)
+        //     .then(resp => {
+        //         const usuarios = this.getUpdatedList(resp.data.usuario)
+        //         this.setState({ user: initialState.user, usuarios })
+        //     })
     }
 
     getUpdatedList(user, add = true) {
@@ -68,10 +78,10 @@ export default class AdminUsuarios extends Component {
 
     renderDropdownTipoUsuario(){
         return (
-        <div class="col-12 col-md-6">
-            <div class="form-group">
-                <label for="tipo">Tipo</label>
-                <select value={this.state.user.tipo_str} onChange={e => this.updateField(e)} name="tipo_str" class="form-control">
+        <div className="col-12 col-md-6">
+            <div className="form-group">
+                <label htmlFor="tipo">Tipo</label>
+                <select value={this.state.user.tipo_str} onChange={e => this.updateField(e)} name="tipo_str" className="form-control">
                     <option>Selecione</option>
                     <option value="Administrador">Administrador</option>
                     <option value="Usuario">Usuario</option>
@@ -177,9 +187,9 @@ export default class AdminUsuarios extends Component {
     }
 
     remove(user) {
-        axios.delete(`${baseUrl}/${user.id}`).then(resp => {
+        api.delete(`/usuario/${user.id}`).then(resp => {
             const usuarios = this.getUpdatedList(user, false)
-            this.setState({ usuarios })
+            this.setState({usuarios})
         })
     }
 

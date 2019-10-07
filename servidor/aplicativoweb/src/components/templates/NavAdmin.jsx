@@ -1,6 +1,7 @@
 import './Nav.css'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { logout } from '../../services/auth'
 
 export default props =>
     <aside className="menu-area">
@@ -14,6 +15,9 @@ export default props =>
             </Link>
             <Link to="/vagas">
                 <i className="fa fa-car"></i> Vagas
+            </Link>
+            <Link to="/logout">
+                <i className="fa fa-power-off"></i> Logout
             </Link>    
         </nav>
     </aside>

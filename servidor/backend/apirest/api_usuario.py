@@ -13,18 +13,21 @@ bp_usuario = Blueprint('bp_usuario', __name__)
 
 # curl -i http://localhost:5000/usuario
 @bp_usuario.route('/usuario', methods=['GET'])
+@requires_auth_admin
 def obtem_usuarios():
     resp = {'usuarios': servicoUsuario.obtem()}
     return jsonify(resp)
 
 # curl -i http://localhost:5000/usuario/1
 @bp_usuario.route('/usuario/<int:idUsuario>', methods=['GET'])
+@requires_auth_user
 def obtem_usuario(idUsuario):
     resp = {'usuario': servicoUsuario.obtem(idUsuario)}
     return jsonify(resp)
 
 # curl -i -H "Content-Type: application/json" -X DELETE http://localhost:5000/usuario/<ID>
 @bp_usuario.route('/usuario/<int:idUsuario>', methods=['DELETE'])
+@requires_auth_admin
 def remove_usuario(idUsuario):
     resp = servicoUsuario.removeUsuario(idUsuario)
     if 'erro' in resp:
@@ -38,6 +41,7 @@ def remove_usuario(idUsuario):
 # curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini","senha":"1234"}' http://localhost:5000/usuario
 # curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini","senha":"1234","tipo":1}' http://localhost:5000/usuario
 @bp_usuario.route('/usuario', methods=['POST'])
+@requires_auth_admin
 def adiciona_usuario():
     if not request.json:
         abort(404)
@@ -50,6 +54,7 @@ def adiciona_usuario():
 
 # curl -i http://localhost:5000/usuario/1/vagas
 @bp_usuario.route('/usuario/<int:idUsuario>/vagas', methods=['GET'])
+@requires_auth_user
 def obtem_vagas(idUsuario):
     resp = servicoUsuario.obtemVagas(idUsuario)
     if 'erro' in resp:
@@ -59,6 +64,7 @@ def obtem_vagas(idUsuario):
 
 # curl -i http://localhost:5000/usuarios/vagas
 @bp_usuario.route('/usuarios/vagas', methods=['GET'])
+@requires_auth_admin
 def obtem_usuarios_vagas():
     resp = {'usuarios': servicoUsuario.obtem(comVagas=True)}
     return jsonify(resp)
@@ -74,7 +80,10 @@ def create_token():
     if 'erro' in usuario:
         abort(usuario['erro'], usuario.get('msg'))
 
-    return jsonify(token=generate_token(usuario))
+    resp = {'token': generate_token(usuario)}
+    resp['tipo'] = usuario.get('tipo')
+
+    return jsonify(resp)
 
 
 @bp_usuario.route("/usuario/check_token", methods=["POST"])
@@ -88,13 +97,4 @@ def is_token_valid():
         return jsonify(token_is_valid=False), 403
 
 # curl -i -H "Authorization: eyJhbGciOiJIUzUxMiIsImlhdCI6MTU3MDIwNTE1OCwiZXhwIjoxNTcxNDE0NzU4fQ.eyJpZCI6MiwiZW1haWwiOiJwZWRyb0BlbWFpbC5jb20uYnIiLCJ0aXBvIjoyfQ.GiWRFBXNgBE4Y6GQRneTtvzcRi8yectSE07TapXLyXHivRt8kOsEUP57XWwjx6u2RlTOBQi7VmSBb7UrUY0mEQ" http://localhost:5000/usuario/teste_auth_user
-@bp_usuario.route("/usuario/teste_auth_user", methods=["GET"])
-@requires_auth_user
-def teste_auth_user():
-    return jsonify({'resp': 'muito bem, autenticado como user'})
-
 # curl -i -H "Authorization: eyJhbGciOiJIUzUxMiIsImlhdCI6MTU3MDIwNTE1OCwiZXhwIjoxNTcxNDE0NzU4fQ.eyJpZCI6MiwiZW1haWwiOiJwZWRyb0BlbWFpbC5jb20uYnIiLCJ0aXBvIjoyfQ.GiWRFBXNgBE4Y6GQRneTtvzcRi8yectSE07TapXLyXHivRt8kOsEUP57XWwjx6u2RlTOBQi7VmSBb7UrUY0mEQ" http://localhost:5000/usuario/teste_auth_admin
-@bp_usuario.route("/usuario/teste_auth_admin", methods=["GET"])
-@requires_auth_admin
-def teste_auth_admin():
-    return jsonify({'resp': 'muito bem, autenticado como admin'})

@@ -1,7 +1,7 @@
-from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey
+from sqlalchemy import Column, String, Integer, Table, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from enum import Enum
-from datetime import date
+from datetime import datetime
 from flask_bcrypt import bcrypt
 
 from entidades.base import Base
@@ -34,7 +34,7 @@ class Usuario(Base):
     email = Column(String(50), nullable=False, unique=True)
     senha = Column(String(255))
     tipo = Column(Integer)
-    data_cadastro = Column(Date)
+    data_cadastro = Column(DateTime)
     vagas = relationship("Vaga", secondary=associacao_usuario_vaga, backref='usuario')
 
     def __init__(self, nome, sobrenome, email, senha, tipo):
@@ -43,7 +43,7 @@ class Usuario(Base):
         self.email = email
         self.senha = Usuario.getHashSenha(senha)
         self.tipo = tipo
-        self.data_cadastro = date.today()
+        self.data_cadastro = datetime.now()
         vagas = []
 
     def setaVagas(self, vagas):
@@ -61,7 +61,6 @@ class Usuario(Base):
             'nome': self.nome,
             'sobrenome': self.sobrenome,
             'email': self.email,
-            'senha': self.senha,
             'tipo': self.tipo,
             'tipo_str': TipoUsuario.tipo_str[self.tipo],
             'dataCadastro': self.data_cadastro
