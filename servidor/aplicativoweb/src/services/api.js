@@ -8,7 +8,6 @@ const api = axios.create({
 api.interceptors.request.use(async config => {
     
     const token = getToken();
-    console.log("token para inserir: ", token)
     if (token) {
         config.headers.Authorization = token;
     }

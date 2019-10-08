@@ -151,6 +151,7 @@ class ServicoVaga(object):
             if vaga is None:
                 return {'erro': 404, 'msg': 'Vaga nao encontrada'}
 
+            estadoEvento = int(estadoEvento)
             evento = Evento(estadoEvento, vaga.identificador)
             vaga.setaEstado(estadoEvento)
             # vaga.setaEvento(evento)
@@ -158,6 +159,8 @@ class ServicoVaga(object):
             session.add(evento)
             session.commit()
 
+        except ValueError:
+            return {'erro': 400, 'msg': 'Valor de parametro invalido'}
         except Exception as e:
             print(str(e))
             return {'erro': 500, 'msg': 'Erro ao adicionar evento'}

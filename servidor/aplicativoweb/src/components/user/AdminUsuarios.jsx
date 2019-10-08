@@ -182,7 +182,6 @@ export default class AdminUsuarios extends Component {
     load(user) {
         user.senha = ""
         user.senha_c = ""
-        console.log(user)
         this.setState({ user })
     }
 

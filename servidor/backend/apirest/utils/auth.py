@@ -44,11 +44,9 @@ def requires_auth_user(f):
 def requires_auth_admin(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        print(str(request.headers))
         token = request.headers.get('Authorization', None)
         if token:
             string_token = token.encode('ascii', 'ignore')
-            print(str(string_token))
             user = verify_token(string_token)
             if user and user.get('tipo') == 1:
                 g.current_user = user

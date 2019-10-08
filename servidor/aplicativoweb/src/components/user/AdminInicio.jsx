@@ -80,7 +80,6 @@ export default class AdminInicio extends Component {
         if (linhas*colunas < countVagas)
             colunas += 1
         
-        let elementos = linhas*colunas
         let linhasTabela = []
         for(let i=0;i<countVagas;i=i+colunas) {
             linhasTabela.push(this.state.vagas.slice(i, i+colunas))
@@ -135,7 +134,6 @@ export default class AdminInicio extends Component {
     }
 
     abreDetalhesDaVaga(e, vaga) {
-        console.log(vaga)
         detalhesVaga.identificadorVaga = vaga.identificador
         detalhesVaga.responsaveis = 'João Silva, Maria Pereira'
         detalhesVaga.estado = vaga.estado_str
