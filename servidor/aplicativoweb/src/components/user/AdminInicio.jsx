@@ -12,7 +12,6 @@ const headerProps = {
 
 const initialState = {
     vagas: [],
-    usuariosVagas: [],
     eventos: []
 }
 
@@ -30,13 +29,22 @@ export default class AdminInicio extends Component {
 
     componentWillMount() {
         this.setState({ modalShow: false })
+        this.getStatus()
+    }
 
+    // componentDidMount() {
+    //     this.interval = setInterval(() => {
+    //       this.getStatus()
+    //     }, 10000)
+    // }
+
+    componentWillUnmount() {
+        clearInterval(this.interval)
+    }
+
+    getStatus() {
         api.get('/vaga').then(resp => {
             this.setState({ vagas: resp.data.vagas })
-        })
-
-        api.get('/usuarios/vagas').then(resp => {
-            this.setState({ usuariosVagas: resp.data.usuarios })
         })
 
         api.get('/eventos', {

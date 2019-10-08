@@ -53,11 +53,8 @@ class Vaga(Base):
         self.tipo = tipo
 
     def setaEstado(self, estado):
-        print("seta estado: %s" % str(estado))
         if estado in EstadoVaga.lista_estados:
             self.estado = estado
-        else:
-            print("not in estado")
 
     def setaTipo(self, tipo):
         if tipo in TipoVaga.lista_tipo:
