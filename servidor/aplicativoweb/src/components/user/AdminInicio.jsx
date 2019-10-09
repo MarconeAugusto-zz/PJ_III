@@ -12,7 +12,6 @@ const headerProps = {
 
 const initialState = {
     vagas: [],
-    usuariosVagas: [],
     eventos: []
 }
 
@@ -30,13 +29,22 @@ export default class AdminInicio extends Component {
 
     componentWillMount() {
         this.setState({ modalShow: false })
+        this.getStatus()
+    }
 
+    // componentDidMount() {
+    //     this.interval = setInterval(() => {
+    //       this.getStatus()
+    //     }, 10000)
+    // }
+
+    componentWillUnmount() {
+        clearInterval(this.interval)
+    }
+
+    getStatus() {
         api.get('/vaga').then(resp => {
             this.setState({ vagas: resp.data.vagas })
-        })
-
-        api.get('/usuarios/vagas').then(resp => {
-            this.setState({ usuariosVagas: resp.data.usuarios })
         })
 
         api.get('/eventos', {
@@ -80,7 +88,6 @@ export default class AdminInicio extends Component {
         if (linhas*colunas < countVagas)
             colunas += 1
         
-        let elementos = linhas*colunas
         let linhasTabela = []
         for(let i=0;i<countVagas;i=i+colunas) {
             linhasTabela.push(this.state.vagas.slice(i, i+colunas))
@@ -135,7 +142,6 @@ export default class AdminInicio extends Component {
     }
 
     abreDetalhesDaVaga(e, vaga) {
-        console.log(vaga)
         detalhesVaga.identificadorVaga = vaga.identificador
         detalhesVaga.responsaveis = 'João Silva, Maria Pereira'
         detalhesVaga.estado = vaga.estado_str

@@ -23,7 +23,7 @@ export default class PaginaLogin extends Component {
           try {
             const response = await api.post("/usuario/login", { email, senha });
             login(response.data.token);
-            if (response.data.tipo == 1)
+            if (response.data.tipo === 1)
                 this.props.history.push("/HomeAdmin");
             else
                 this.props.history.push("/Home")
@@ -36,8 +36,6 @@ export default class PaginaLogin extends Component {
       };
 
     // makeLogin() {
-    //     console.log(this.state.user.email)
-    //     console.log(this.state.user.password)
     //     this.props.history.push('/HomeAdmin')
     //     // return <Redirect to='/HomeAdmin' />
     // }
@@ -79,7 +77,7 @@ export default class PaginaLogin extends Component {
     }
 
     trataProps() {
-        if (this.props.history.action == "PUSH") {
+        if (this.props.history.action === "PUSH") {
             logout()
             window.location.reload()
         }

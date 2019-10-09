@@ -4,7 +4,6 @@ import { Switch, Route, Redirect } from 'react-router'
 import AdminUsuarios from '../user/AdminUsuarios'
 import AdminInicio from '../user/AdminInicio'
 import AdminVagas from '../user/AdminVagas'
-import App from '../../main/App'
 import PaginaLogin from '../login/PaginaLogin'
 
 export default props =>

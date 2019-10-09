@@ -143,7 +143,7 @@ export default class Vagas extends Component {
 
     remove(vaga) {
         let disponivel = false
-        if (this.state.vagasDisponiveis.filter(v => v.id == vaga.id).length > 0)
+        if (this.state.vagasDisponiveis.filter(v => v.id === vaga.id).length > 0)
             disponivel = true
 
         api.delete(`/vaga/${vaga.id}`).then(resp => {
