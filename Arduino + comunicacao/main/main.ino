@@ -29,19 +29,19 @@ Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
 //Variáveis
 String mensagem, IdVaga = "A01";  //exemplo 7 bytes, limitado a 8 bytes no node-red
 char msgSigfox[9];
-int watchdogCounter, redLED = 6, ledVerde = 45, buzzer = 48, estado, estado_tmp, tempoEspera = 10000; // 10 segundos.
-float distancia = 25.0, dist; // distancia utilizada 25 cm
+int watchdogCounter, redLED = 6, ledVerde = 45, buzzer = 48, estado, estado_tmp, tempoEspera = 5000; // 5 segundos.
+float distancia = 15.0, dist; // distancia utilizada 15 cm
 boolean autentica_tmp, autentica = false, debug = true;
 uint8_t PublicModeSF, stateLED, ledCounter;
 
 // ThreadController que controlará todos os threads
 ThreadController controll = ThreadController();
 ThreadController controll2 = ThreadController();
-ThreadController controll3 = ThreadController();
+//ThreadController controll3 = ThreadController();
 
 //My Thread  (como um ponteiro)
 Thread* myThread = new Thread();
-Thread* myThread2 = new Thread();
+//Thread* myThread2 = new Thread();
 Thread hisThread = Thread();
 
 Isigfox *Isigfox = new WISOL();
@@ -65,7 +65,7 @@ void configInit() {
 void setup() {
   int flagInit;
   Wire.begin();
-  Wire.setClock(100000);
+  Wire.setClock(10000000);
   configInit();
   // Init watchdog timer
   //watchdogSetup();
@@ -86,7 +86,7 @@ void setup() {
   ledCounter = 0;
   // Configure Threads
   myThread->onRun(getDistancia);
-  myThread->setInterval(500);  //verifica o sensor ultrassonico
+  myThread->setInterval(600);  //verifica o sensor ultrassonico
   //  myThread2->onRun(sendInterval);
   //  myThread2->setInterval(600000);  //intervalo para envio de mensagens
   hisThread.onRun(getAutenticacao);
@@ -168,13 +168,21 @@ void loop() {
   if (estado_tmp != estado) {
     // invocar método para enviar via sigfox
     SendMSG(estado_tmp);
+    if(debug){
+      Serial.println("####################################################");
+      Serial.println(mensagem);
+      Serial.println("####################################################");
+      Serial.println();
+    }
+    delay(1000);
   } else {
-    delay(500);
+    delay(1000);
     if (debug) {
       Serial.println("Nenhuma alteração detectada...");
     }
   }
   estado = estado_tmp;
+  autentica = autentica_tmp;
 }
 
 void getDistancia() {
@@ -261,15 +269,15 @@ void SendMSG(int estado_tmp) {
   const uint8_t payloadSize = 9; //in bytes
   //  byte* buf_str = (byte*) malloc (payloadSize);
   uint8_t buf_str[payloadSize];
-  buf_str[0] = msgSigfox[0];
-  buf_str[1] = msgSigfox[1];
-  buf_str[2] = msgSigfox[2];
-  buf_str[3] = msgSigfox[3];
-  buf_str[4] = msgSigfox[4];
-  buf_str[5] = msgSigfox[5];
-  buf_str[6] = msgSigfox[6];
-  buf_str[7] = msgSigfox[7];
-  buf_str[8] = msgSigfox[8];
+  buf_str[0] = msgSigfox[0] == 0x00 ? ' ' : msgSigfox[0];
+  buf_str[1] = msgSigfox[1] == 0x00 ? ' ' : msgSigfox[1];
+  buf_str[2] = msgSigfox[2] == 0x00 ? ' ' : msgSigfox[2];
+  buf_str[3] = msgSigfox[3] == 0x00 ? ' ' : msgSigfox[3];
+  buf_str[4] = msgSigfox[4] == 0x00 ? ' ' : msgSigfox[4];
+  buf_str[5] = msgSigfox[5] == 0x00 ? ' ' : msgSigfox[5];
+  buf_str[6] = msgSigfox[6] == 0x00 ? ' ' : msgSigfox[6];
+  buf_str[7] = msgSigfox[7] == 0x00 ? ' ' : msgSigfox[7];
+  buf_str[8] = msgSigfox[8] == 0x00 ? ' ' : msgSigfox[8];
   Send_Pload(buf_str, payloadSize);
 }
 
