@@ -48,7 +48,7 @@ class Usuario(Base):
 
     def setaVagas(self, vagas):
         if type(vagas) == list:
-            self.vagas.extend(vagas)
+            self.vagas = vagas
         elif vagas is not None:
             self.vagas.append(vagas)
 

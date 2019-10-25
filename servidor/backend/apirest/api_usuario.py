@@ -15,7 +15,7 @@ bp_usuario = Blueprint('bp_usuario', __name__)
 @bp_usuario.route('/usuario', methods=['GET'])
 @requires_auth_admin
 def obtem_usuarios():
-    resp = {'usuarios': servicoUsuario.obtem()}
+    resp = {'usuarios': servicoUsuario.obtem(comVagas=True)}
     return jsonify(resp)
 
 # curl -i http://localhost:5000/usuario/1
@@ -41,16 +41,31 @@ def remove_usuario(idUsuario):
 # curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini","senha":"1234"}' http://localhost:5000/usuario
 # curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini","senha":"1234","tipo":1}' http://localhost:5000/usuario
 @bp_usuario.route('/usuario', methods=['POST'])
-@requires_auth_admin
+# @requires_auth_admin
 def adiciona_usuario():
     if not request.json:
-        abort(404)
+        abort(400)
     
     resp = servicoUsuario.adiciona(request.json)
     if 'erro' in resp:
         abort(resp['erro'], resp.get('msg'))
 
     return make_response(jsonify(resp), 201)
+
+# curl -i -H "Content-Type: application/json" -X POST -d '{"nome":"Vinicius","sobrenome":"Souza","email":"vini","senha":"1234","tipo":1}' http://localhost:5000/usuario/1
+@bp_usuario.route('/usuario/<int:idUsuario>', methods=['PUT'])
+@requires_auth_admin
+def altera_usuario(idUsuario):
+    if not request.json:
+        abort(400)
+
+    print("altera usuariooo")
+    print(str(request.json))
+    resp = servicoUsuario.alteraUsuario(idUsuario, request.json)
+    if 'erro' in resp:
+        abort(resp['erro'], resp.get('msg'))
+
+    return jsonify(resp)
 
 # curl -i http://localhost:5000/usuario/1/vagas
 @bp_usuario.route('/usuario/<int:idUsuario>/vagas', methods=['GET'])

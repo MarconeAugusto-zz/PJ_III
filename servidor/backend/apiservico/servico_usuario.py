@@ -1,5 +1,6 @@
 from entidades.usuario import Usuario
 from entidades.base import Session
+from entidades.vaga import Vaga
 
 class ServicoUsuario(object):
     def obtem(self, idUsuario=None, comVagas=False):
@@ -31,19 +32,82 @@ class ServicoUsuario(object):
             return {'erro': 400, 'msg': 'Parametros incompletos'}
 
         usuario = Usuario(dados['nome'], dados['sobrenome'], dados['email'], dados['senha'], dados['tipo'])
-        usuarioJson = {}
 
+        usuarioJson = {}
         session = Session()
         try:
+            if 'vagas' in dados:
+                if type(dados['vagas']) != list:
+                    return {'erro': 400, 'msg': 'Lista de vagas mal formatada'}
+
+                vagas = []
+                for vg in dados['vagas']:
+                    vaga = session.query(Vaga).filter(Vaga.identificador == vg['identificador']).first()
+
+                    if vaga is None:
+                        return {'erro': 404, 'msg': 'Vaga nao encontrada'}
+                    
+                    vagas.append(vaga)
+                
+                if len(vagas):
+                    usuario.setaVagas(vagas)
+
+
             session.add(usuario)
             session.commit()
-            usuarioJson = usuario.converteParaJson()
+            usuarioJson = usuario.converteParaJson(comVagas=True)
         except Exception as e:
+            print(str(e))
             return {'erro': 500, 'msg': 'Erro ao adicionar usuario', 'exc': str(e)}
         finally:
             session.close()
         
         return {'msg': 'Usuario adicionado', 'usuario': usuarioJson}
+
+    def alteraUsuario(self, idUsuario, dados):
+        session = Session()
+        usuarioJson = {}
+        
+        try:
+            usuario = session.query(Usuario).filter(Usuario.id == idUsuario).first()
+            if usuario is None:
+                return {'erro': 404, 'msg': 'Usuario nao encontrado'}
+
+            vagas = None
+            if 'vagas' in dados:
+                if type(dados['vagas']) != list:
+                    return {'erro': 400, 'msg': 'Lista de vagas mal formatada'}
+
+                vagas = []
+                for vg in dados['vagas']:
+                    vaga = session.query(Vaga).filter(Vaga.identificador == vg['identificador']).first()
+
+                    if vaga is None:
+                        return {'erro': 404, 'msg': 'Vaga nao encontrada'}
+
+                    vagas.append(vaga)
+
+            for attr, val in usuario.__dict__.items():
+                if attr in dados:
+                    valor = dados[attr] if attr != 'senha' else Usuario.getHashSenha(dados['senha'])
+                    setattr(usuario, attr, valor)
+
+            if vagas is not None:
+                usuario.setaVagas(vagas)
+
+            session.commit()
+            usuarioJson = usuario.converteParaJson(comVagas=True)
+
+        except Exception as e:
+            print(str(e))
+            return {'erro': 500, 'msg': 'Erro ao alterar usuario', 'exc': str(e)}
+        finally:
+            session.close()
+
+        return {'msg': 'Usuario alterado', 'usuario': usuarioJson}
+
+
+
 
     def _obtemUsuarioPorId(self, sessao, idUsuario):
         usuario = sessao.query(Usuario).filter(Usuario.id == idUsuario).first()

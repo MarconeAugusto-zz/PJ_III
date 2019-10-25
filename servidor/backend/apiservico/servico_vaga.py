@@ -99,6 +99,35 @@ class ServicoVaga(object):
         return {'msg': 'Vaga adicionada', 'vaga': vagaJson}
 
 
+    def alteraVaga(self, idVaga, dados):
+        print(str(dados))
+        session = Session()
+        vagaJson = {}
+        
+        if 'codigo' in dados:
+            dados['codAutenticacao'] = dados['codigo']
+
+        try:
+            vaga = session.query(Vaga).filter(Vaga.id == idVaga).first()
+
+            if vaga is None:
+                return {'erro': 404, 'msg': 'Vaga nao encontrada'}
+
+            for attr, val in vaga.__dict__.items():
+                if attr in dados:
+                    setattr(vaga, attr, dados[attr])
+
+            session.commit()
+            vagaJson = vaga.converteParaJson()
+
+        except Exception as e:
+            return {'erro': 500, 'msg': 'Erro ao alterar vaga', 'exc': str(e)}
+        finally:
+            session.close()
+
+        return {'msg': 'Vaga alterada', 'vaga': vagaJson}
+
+
     def obtemEventos(self, idVaga):
         session = Session()
         eventos = []

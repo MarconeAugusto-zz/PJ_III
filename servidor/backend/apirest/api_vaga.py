@@ -12,7 +12,7 @@ from apiservico.servico_vaga import servicoVaga
 bp_vaga = Blueprint('bp_vaga', __name__)
 
 # curl -i http://localhost:5000/vaga
-@bp_vaga.route('/vaga', methods=['GET'])
+@bp_vaga.route('/vagas', methods=['GET'])
 @requires_auth_admin
 def obtem_vagas():
     resp = {'vagas': servicoVaga.obtem()}
@@ -61,6 +61,19 @@ def adiciona_vaga():
 
     return make_response(jsonify(resp), 201)
 
+
+# curl -i -H "Content-Type: application/json" -X POST -d '{"identificador":"A03","codigo":"B4AC43", "estado": 1, "tipo": 1, "idUsuario": 1}' http://localhost:5000/vaga/1
+@bp_vaga.route('/vaga/<int:idVaga>', methods=['PUT'])
+# @requires_auth_admin
+def altera_vaga(idVaga):
+    if not request.json:
+        abort(400)
+    
+    resp = servicoVaga.alteraVaga(idVaga, request.json)
+    if 'erro' in resp:
+        abort(resp['erro'], resp.get('msg'))
+
+    return jsonify(resp)
 
 # curl -i http://localhost:5000/vaga/1
 @bp_vaga.route('/vaga/<int:idVaga>/eventos', methods=['GET'])

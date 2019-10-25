@@ -43,7 +43,7 @@ export default class AdminInicio extends Component {
     }
 
     getStatus() {
-        api.get('/vaga').then(resp => {
+        api.get('/vagas').then(resp => {
             this.setState({ vagas: resp.data.vagas })
         })
 

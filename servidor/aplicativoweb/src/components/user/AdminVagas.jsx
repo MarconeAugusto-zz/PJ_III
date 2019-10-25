@@ -11,7 +11,7 @@ const headerProps = {
 
 // const baseUrl = 'http://localhost:5000/vaga'
 const initialState = {
-    vaga: { id: '', identificador: '', tipo: '', codigo: ''},
+    vaga: { id: '', identificador: '', tipo: '', codigo: '', tipo_str: ''},
     vagasDisponiveis: [],
     vagasIndisponiveis: []
 }
@@ -20,7 +20,7 @@ export default class Vagas extends Component {
     state = { ...initialState }
 
     componentWillMount() {
-        api.get("/vaga").then(resp => {
+        api.get("/vagas").then(resp => {
             this.setState({ vagasDisponiveis: resp.data.vagas })
         })
 
@@ -71,6 +71,9 @@ export default class Vagas extends Component {
         // desta forma, vamos criar uma cópia através do operador spread
         const vaga = { ...this.state.vaga }
         vaga[event.target.name] = event.target.value
+        if (event.target.name === 'tipo_str') {
+            vaga.tipo = event.target.value === 'Comum' ? 1 : 2
+        }
         this.setState({vaga})
     }
 
