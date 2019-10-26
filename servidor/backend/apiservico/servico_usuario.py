@@ -1,6 +1,7 @@
 from entidades.usuario import Usuario
 from entidades.base import Session
 from entidades.vaga import Vaga
+from entidades.contato import Contato
 
 class ServicoUsuario(object):
     def obtem(self, idUsuario=None, comVagas=False):
@@ -52,8 +53,15 @@ class ServicoUsuario(object):
                 if len(vagas):
                     usuario.setaVagas(vagas)
 
-
             session.add(usuario)
+
+            fone_residencial = dados.get('fone_residencial', None)
+            fone_trabalho = dados.get('fone_trabalho', None)
+            celular_1 = dados.get('celular_1', None)
+            celular_2 = dados.get('celular_2', None)
+            contato = Contato(usuario, fone_residencial=fone_residencial, fone_trabalho=fone_trabalho, celular_1=celular_1, celular_2=celular_2)
+            session.add(contato)
+
             session.commit()
             usuarioJson = usuario.converteParaJson(comVagas=True)
         except Exception as e:
@@ -95,6 +103,22 @@ class ServicoUsuario(object):
             if vagas is not None:
                 usuario.setaVagas(vagas)
 
+            chavesContato = ['fone_residencial', 'fone_trabalho', 'celular_1', 'celular_2']
+            if any(c in dados for c in chavesContato):
+                contatoUsuarioBD = usuario.contato
+                if contatoUsuarioBD is not None:
+                    for attr, val in contatoUsuarioBD.__dict__.items():
+                        if attr in dados:
+                            setattr(contatoUsuarioBD, attr, dados[attr])
+                else:
+                    fone_residencial = dados.get('fone_residencial', None)
+                    fone_trabalho = dados.get('fone_trabalho', None)
+                    celular_1 = dados.get('celular_1', None)
+                    celular_2 = dados.get('celular_2', None)
+
+                    contato = Contato(usuario, fone_residencial=fone_residencial, fone_trabalho=fone_trabalho, celular_1=celular_1, celular_2=celular_2)
+                    session.add(contato)
+
             session.commit()
             usuarioJson = usuario.converteParaJson(comVagas=True)
 
@@ -106,12 +130,28 @@ class ServicoUsuario(object):
 
         return {'msg': 'Usuario alterado', 'usuario': usuarioJson}
 
-
-
-
     def _obtemUsuarioPorId(self, sessao, idUsuario):
         usuario = sessao.query(Usuario).filter(Usuario.id == idUsuario).first()
         return usuario
+
+    def obtemContato(self, idUsuario):
+        session = Session()
+
+        try:
+            usuario = self._obtemUsuarioPorId(session, idUsuario)
+            if usuario is None:
+                return {'erro': 404, 'msg': 'Usuario nao encontrado'}
+
+            contato = usuario.contato
+            if contato is None:
+                return {}
+            else:
+                return usuario.contato.converteParaJson()
+
+        except Exception as e:
+            return {'erro': 500, 'msg': 'Erro ao obter contato do usuario', 'exc': str(e)}
+        finally:
+            session.close()
 
     def obtemVagas(self, idUsuario):
         sessao = Session()
@@ -163,6 +203,27 @@ class ServicoUsuario(object):
         
         return {'id': usuario.id, 'email': usuario.email, 'tipo': usuario.tipo}
 
+
+    def obtemResponsaveis(self, idVaga):
+        # if 'idVaga' not in dados:
+        #     return {'erro': 400, 'msg': 'Parametros incompletos'}
+
+        # idVaga = dados['idVaga']
+        session = Session()
+
+        try:
+            # Artist.query.filter(Artist.albums.any(genre_id=genre.id)).all()
+            responsaveisResp = []
+            responsaveis = session.query(Usuario).filter(Usuario.vagas.any(id=idVaga)).all()
+
+            for responsavel in responsaveis:
+                responsaveisResp.append(responsavel.converteParaJson(comContato=True))
+
+            return responsaveisResp
+        except Exception as e:
+            return {'erro': 500, 'msg': 'Erro ao obter responsaveis', 'exc': str(e)}
+        finally:
+            session.close()
 
 
 servicoUsuario = ServicoUsuario()

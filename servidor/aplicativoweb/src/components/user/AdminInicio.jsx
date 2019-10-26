@@ -19,8 +19,18 @@ const detalhesVaga = {
     identificadorVaga: '',
     responsaveis: '',
     estado: '',
-    telefones: '',
-    emails: ''
+    contatos: []
+}
+
+function getTelefones(fones) {
+    return fones.map(f => {
+        if (f.telefones.length > 0 ) {
+            var fones_str = f.telefones.join(', ')
+            return (<p><b>Contato {f.nome}: </b>{fones_str} ({f.email})</p>)
+        } else {
+            return (<p><b>Contato {f.nome}: </b>{f.email}</p>)
+        }
+    })
 }
 
 export default class AdminInicio extends Component {
@@ -142,12 +152,37 @@ export default class AdminInicio extends Component {
     }
 
     abreDetalhesDaVaga(e, vaga) {
-        detalhesVaga.identificadorVaga = vaga.identificador
-        detalhesVaga.responsaveis = 'João Silva, Maria Pereira'
-        detalhesVaga.estado = vaga.estado_str
-        detalhesVaga.telefones = '99988-1234 (João), 98812-4321 (Maria)'
-        detalhesVaga.emails = 'joao@email.com.br (João), maria@email.com.br (Maria)'
-        this.setModalShow(true)
+        api.get(`/usuario/responsaveis/${vaga.id}`).then(resp => {
+            var responsaveis = resp.data.responsaveis
+
+            detalhesVaga.identificadorVaga = vaga.identificador
+            detalhesVaga.estado = vaga.estado_str
+
+            var nomes_str = []
+            var contatos = []
+            responsaveis.forEach(responsavel => {
+                var contato = responsavel.contato
+                nomes_str.push(`${responsavel.nome} ${responsavel.sobrenome}`)
+
+                var fones_list = []
+                if (contato.fone_residencial) fones_list.push(contato.fone_residencial)
+                if (contato.fone_trabalho) fones_list.push(contato.fone_trabalho)
+                if (contato.celular_1) fones_list.push(contato.celular_1)
+                if (contato.celular_2) fones_list.push(contato.celular_2)
+                
+                var contatoObj = {
+                    nome: responsavel.nome,
+                    telefones: fones_list,
+                    email: responsavel.email
+                }              
+                contatos.push(contatoObj)
+            })
+            
+            detalhesVaga.responsaveis = nomes_str.join(', ')
+            detalhesVaga.contatos = contatos
+            this.setModalShow(true)
+        })
+
     } 
 
     MyVerticallyCenteredModal(props) {
@@ -168,8 +203,7 @@ export default class AdminInicio extends Component {
               <br />
               <p><b>Responsáveis:</b> {detalhesVaga.responsaveis}</p>
               <p><b>Estado da vaga:</b> {detalhesVaga.estado}</p>
-              <p><b>Telefones:</b> {detalhesVaga.telefones}</p>
-              <p><b>E-mails:</b> {detalhesVaga.emails}</p>
+              {getTelefones(detalhesVaga.contatos)}
             </Modal.Body>
             <Modal.Footer>
               <Button onClick={props.onHide}>Fechar</Button>

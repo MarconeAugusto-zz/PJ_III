@@ -12,7 +12,8 @@ const headerProps = {
 
 // const baseUrl = 'http://localhost:5000/usuario'
 const initialState = {
-    user: { nome: '', sobrenome: '', email: '', senha: '', senha_c: '', tipo: '', tipo_str: '', vagas: []},
+    user: { nome: '', sobrenome: '', email: '', senha: '', senha_c: '', tipo: '', tipo_str: '', vagas: [],
+            fone_residencial: '', fone_trabalho: '', celular_1: '', celular_2: '' },
     usuarios: [],
     vagas: []
 }
@@ -23,7 +24,8 @@ const detalhesUsuario = {
     email: '',
     tipo_str: '',
     dataCadastro: '',
-    vagas: []
+    vagas: [],
+    contato: {}
 }
 
 export default class AdminUsuarios extends Component {
@@ -247,7 +249,54 @@ export default class AdminUsuarios extends Component {
                                 placeholder="Digite a senha ..." />
                         </div>
                     </div>
+                </div>
 
+                <div className="row">
+                    <div className="col-12 col-md-6">
+                        <div className="form-group">
+                            <label>Telefone Residencial</label>
+                            <input type="text" className="form-control"
+                                name="fone_residencial"
+                                value={this.state.user.fone_residencial}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite o telefone ..." />
+                        </div>
+                    </div>
+
+                    <div className="col-12 col-md-6">
+                        <div className="form-group">
+                            <label>Telefone Comercial</label>
+                            <input type="text" className="form-control"
+                                name="fone_trabalho"
+                                value={this.state.user.fone_trabalho}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite a senha ..." />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row">
+                    <div className="col-12 col-md-6">
+                        <div className="form-group">
+                            <label>Celular 1</label>
+                            <input type="text" className="form-control"
+                                name="celular_1"
+                                value={this.state.user.celular_1}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite o celular ..." />
+                        </div>
+                    </div>
+
+                    <div className="col-12 col-md-6">
+                        <div className="form-group">
+                            <label>Celular 2</label>
+                            <input type="text" className="form-control"
+                                name="celular_2"
+                                value={this.state.user.celular_2}
+                                onChange={e => this.updateField(e)}
+                                placeholder="Digite a senha ..." />
+                        </div>
+                    </div>
                 </div>
 
                     {this.renderDropdownTipoUsuario()}
@@ -276,7 +325,13 @@ export default class AdminUsuarios extends Component {
     load(user) {
         user.senha = ""
         user.senha_c = ""
-        this.setState({ user })
+        api.get(`/usuario/${user.id}/contato`).then(resp => {
+            user.fone_residencial = resp.data.fone_residencial
+            user.fone_trabalho = resp.data.fone_trabalho
+            user.celular_1 = resp.data.celular_1
+            user.celular_2 = resp.data.celular_2
+            this.setState({user})
+        })
     }
 
     remove(user) {
@@ -311,15 +366,16 @@ export default class AdminUsuarios extends Component {
     }
 
     abreDetalhesUsuario(usuario) {
-        // { nome: '', sobrenome: '', email: '', senha: '', senha_c: '', tipo: '', tipo_str: ''},
-
-        detalhesUsuario.nome = usuario.nome
-        detalhesUsuario.sobrenome = usuario.sobrenome
-        detalhesUsuario.email = usuario.email
-        detalhesUsuario.tipo_str = usuario.tipo_str
-        detalhesUsuario.dataCadastro = usuario.dataCadastro
-        detalhesUsuario.vagas = usuario.vagas
-        this.setModalShow(true)
+        api.get(`/usuario/${usuario.id}/contato`).then(resp => {
+            detalhesUsuario.contato = resp.data
+            detalhesUsuario.nome = usuario.nome
+            detalhesUsuario.sobrenome = usuario.sobrenome
+            detalhesUsuario.email = usuario.email
+            detalhesUsuario.tipo_str = usuario.tipo_str
+            detalhesUsuario.dataCadastro = usuario.dataCadastro
+            detalhesUsuario.vagas = usuario.vagas
+            this.setModalShow(true)
+        })
     } 
 
     getStringVagas(vagas) {
@@ -347,7 +403,11 @@ export default class AdminUsuarios extends Component {
               <br />
               <p><b>E-mail:</b> {detalhesUsuario.email}</p>
               <p><b>Data de Cadastro:</b> {detalhesUsuario.dataCadastro}</p>
-              <p><b>Vagas:</b> {detalhesUsuario.vagas.map(v => v.identificador).join(',')}</p>
+              <p><b>Vagas:</b> {detalhesUsuario.vagas.map(v => v.identificador).join(', ')}</p>
+              <p><b>Telefone Residencial:</b> {detalhesUsuario.contato.fone_residencial}</p>
+              <p><b>Telefone Comercial:</b> {detalhesUsuario.contato.fone_trabalho}</p>
+              <p><b>Celular 1:</b> {detalhesUsuario.contato.celular_1}</p>
+              <p><b>Celular 2:</b> {detalhesUsuario.contato.celular_2}</p>
             </Modal.Body>
             <Modal.Footer>
               <Button onClick={props.onHide}>Fechar</Button>

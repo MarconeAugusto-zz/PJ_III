@@ -26,7 +26,9 @@ export default class PaginaLogin extends Component {
             if (response.data.tipo === 1)
                 this.props.history.push("/HomeAdmin");
             else
-                this.props.history.push("/Home")
+                this.setState({
+                    erro: "Login não pôde ser realizado. Apenas administradores tem acesso ao sistema de gerenciamento."
+                });
           } catch (err) {
             this.setState({
               erro: "Login não pôde ser realizado. Verifique suas credenciais."

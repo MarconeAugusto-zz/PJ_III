@@ -5,6 +5,7 @@ from datetime import datetime
 from flask_bcrypt import bcrypt
 
 from entidades.base import Base
+from entidades.contato import Contato
 
 associacao_usuario_vaga = Table(
     'usuario_vaga', Base.metadata,
@@ -36,6 +37,7 @@ class Usuario(Base):
     tipo = Column(Integer)
     data_cadastro = Column(DateTime)
     vagas = relationship("Vaga", secondary=associacao_usuario_vaga, backref='usuario')
+    # contato = relationship("Contato")
 
     def __init__(self, nome, sobrenome, email, senha, tipo):
         self.nome = nome
@@ -55,7 +57,7 @@ class Usuario(Base):
     def obtemVagas(self):
         return self.vagas
 
-    def converteParaJson(self, comVagas=False):
+    def converteParaJson(self, comVagas=False, comContato=False):
         usuarioJson = {
             'id': self.id,
             'nome': self.nome,
@@ -68,6 +70,12 @@ class Usuario(Base):
 
         if comVagas:
             usuarioJson['vagas'] = [vg.converteParaJson() for vg in self.vagas]
+
+        if comContato:
+            if self.contato:
+                usuarioJson['contato'] = self.contato.converteParaJson()
+            else:
+                usuarioJson['contato'] = {}
 
         return usuarioJson
 
