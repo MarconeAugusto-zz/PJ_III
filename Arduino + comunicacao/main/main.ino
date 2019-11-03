@@ -27,25 +27,23 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); //Instância MFRC522.
 Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
 
 //Variáveis
-String mensagem, IdVaga = "A01";  //exemplo 7 bytes, limitado a 8 bytes no node-red
+String mensagem, TAG = "", IdVaga = "A01";  //exemplo 7 bytes, limitado a 8 bytes no node-red
 char msgSigfox[9];
-int watchdogCounter, redLED = 6, ledVerde = 45, buzzer = 48, estado, estado_tmp, tempoEspera = 5000; // 5 segundos.
-float distancia = 15.0, dist; // distancia utilizada 15 cm
-boolean autentica_tmp, autentica = false, debug = true;
+int watchdogCounter, ledVerde = 45, ledCadastro = 42, buzzer = 48, estado = 2, estado_tmp, interruptPin = 44, tempoEspera = 10000; // 10 segundos.
+float distancia = 10.0, dist; // distancia utilizada 15 cm
+boolean autentica_tmp, autentica = false, debug = true, cadastro = false;
 uint8_t PublicModeSF, stateLED, ledCounter;
 
 // ThreadController que controlará todos os threads
 ThreadController controll = ThreadController();
 ThreadController controll2 = ThreadController();
-//ThreadController controll3 = ThreadController();
 
-//My Thread  (como um ponteiro)
 Thread* myThread = new Thread();
-//Thread* myThread2 = new Thread();
 Thread hisThread = Thread();
 
 Isigfox *Isigfox = new WISOL();
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void configInit() {
   Serial.begin(9600);   // Inicia a serial
   Serial.println();
@@ -53,7 +51,10 @@ void configInit() {
   Serial.println();
   getDistancia();       //Obtem a distancia inicial
   pinMode(ledVerde , OUTPUT);
+  pinMode(ledCadastro , OUTPUT);
+  digitalWrite(ledCadastro , LOW); // identificaçao visual para o cadastro
   pinMode(buzzer , OUTPUT);
+  pinMode(interruptPin, INPUT);
   Serial.println("Iniciando Sensor Ultrassonico...");
   Serial.println();
   digitalWrite(ledVerde , LOW); // identificaçao visual para sensor ultrassonico
@@ -62,15 +63,13 @@ void configInit() {
   Serial.println();
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
   int flagInit;
   Wire.begin();
   Wire.setClock(10000000);
   configInit();
-  // Init watchdog timer
-  //watchdogSetup();
   watchdogCounter = 0;
-  // WISOL test
   flagInit = -1;
   while (flagInit == -1) {
     Serial.println(""); // Make a clean restart
@@ -79,7 +78,6 @@ void setup() {
     flagInit = Isigfox->initSigfox();
     Isigfox->testComms();
     GetDeviceID();
-    //Isigfox->setPublicKey(); // set public key for usage with SNEK
   }
   // Init LED
   stateLED = 0;
@@ -87,25 +85,36 @@ void setup() {
   // Configure Threads
   myThread->onRun(getDistancia);
   myThread->setInterval(600);  //verifica o sensor ultrassonico
-  //  myThread2->onRun(sendInterval);
-  //  myThread2->setInterval(600000);  //intervalo para envio de mensagens
   hisThread.onRun(getAutenticacao);
   hisThread.setInterval(500);  //verifica o RFID
   // add as Threads ao controle
   controll.add(myThread);
   controll2.add(&hisThread);
-  //  controll3.add(myThread2);
   buzzer_init();
   strcpy(msgSigfox, IdVaga.c_str()); //copia a string com id_vaga para a mensagem a ser enviada
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop() {
   estado_tmp = estado;
+  cadastro = false;
   wdt_reset();
-  watchdogCounter = 0;
   controll.run();   //metodo verifica distancia
   controll2.run();  //metodo verifica RFID
-  //  controll3.run();  //metodo envia mensagem a cada 10 minutos
+  //Cadastro tag
+  while (digitalRead(interruptPin) != HIGH) {
+    digitalWrite(ledCadastro , HIGH); // identificaçao visual para o cadastro
+    cadastroTAG();
+    Serial.print("var cadastro: ");
+    Serial.println(cadastro);
+    if (cadastro == true and digitalRead(interruptPin) != HIGH) {
+      while (digitalRead(interruptPin) != HIGH) {
+        getTAG(); // tempo para autenticar a vaga
+      }
+    }
+  }
+  digitalWrite(ledCadastro , LOW); // identificaçao visual para o cadastro
+  //Estados
   if (dist > distancia) {
     digitalWrite(ledVerde , LOW);  // identificaçao visual para sensor ultrassonico
   }
@@ -168,7 +177,7 @@ void loop() {
   if (estado_tmp != estado) {
     // invocar método para enviar via sigfox
     SendMSG(estado_tmp);
-    if(debug){
+    if (debug) {
       Serial.println("####################################################");
       Serial.println(mensagem);
       Serial.println("####################################################");
@@ -179,12 +188,15 @@ void loop() {
     delay(1000);
     if (debug) {
       Serial.println("Nenhuma alteração detectada...");
+      Serial.print("TAG: ");
+      Serial.println(TAG);
     }
   }
   estado = estado_tmp;
   autentica = autentica_tmp;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void getDistancia() {
   //Le as informacoes do sensor e converte para centímetros
   float cmMsec;
@@ -193,6 +205,7 @@ void getDistancia() {
   dist = cmMsec;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void getAutenticacao() {
   SPI.begin();          // Inicia o barramento SPI
   mfrc522.PCD_Init();   // Inicia MFRC522
@@ -211,8 +224,7 @@ void getAutenticacao() {
   Serial.println();
   Serial.print("UID da tag :");
   String conteudo = "";
-  for (byte i = 0; i < mfrc522.uid.size; i++)
-  {
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
     Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
     Serial.print(mfrc522.uid.uidByte[i], HEX);
     conteudo.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
@@ -221,7 +233,7 @@ void getAutenticacao() {
   Serial.println();
   Serial.println();
   conteudo.toUpperCase();
-  if (conteudo.substring(1) == "40 1F 63 46") { //UID 1 - Chaveiro
+  if (conteudo.substring(1) == TAG) { //UID 1 - Chaveiro
     if (autentica_tmp == false) {
       autentica_tmp = true;  //altera a variavel
     } else {
@@ -237,21 +249,103 @@ void getAutenticacao() {
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void buzzer_init() {
   int frequencia = 8000;
   tone(buzzer, frequencia, 500);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void buzzer_aprovado() {
   int frequencia = 3500;
   tone(buzzer, frequencia, 500);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void buzzer_rejeitado() {
   int frequencia = 300;
   tone(buzzer, frequencia, 500);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void cadastroTAG() {
+  if (debug) {
+    Serial.println("Aguardando TAG ADM, para liberar o cadastro");
+  }
+  SPI.begin();          // Inicia o barramento SPI
+  mfrc522.PCD_Init();   // Inicia MFRC522
+  if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    return;
+  }
+  // Selecione um dos cartões
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
+  //Mostra o UID na serial
+  Serial.println();
+  Serial.println();
+  Serial.print("UID da tag :");
+  String conteudo = "";
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    Serial.print(mfrc522.uid.uidByte[i], HEX);
+    conteudo.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    conteudo.concat(String(mfrc522.uid.uidByte[i], HEX));
+  }
+  Serial.println();
+  Serial.println();
+  conteudo.toUpperCase();
+  if (conteudo.substring(1) == "39 13 35 5B") { //UID 1 - Cartão
+    buzzer_init();
+    if (debug) {
+      Serial.println("TAG Adiministrador ativada");
+      Serial.println("Cadastrar nova TAG");
+    }
+    delay(1000);
+    cadastro = true;
+  } else {
+    cadastro = false;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void getTAG() {
+  if (debug) {
+    Serial.println("GET TAG");
+  }
+  SPI.begin();          // Inicia o barramento SPI
+  mfrc522.PCD_Init();   // Inicia MFRC522
+  if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    return;
+  }
+  // Selecione um dos cartões
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
+  //Mostra o UID na serial
+  Serial.println();
+  Serial.println();
+  Serial.print("UID da tag :");
+  String conteudo = "";
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    Serial.print(mfrc522.uid.uidByte[i], HEX);
+    conteudo.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    conteudo.concat(String(mfrc522.uid.uidByte[i], HEX));
+  }
+  Serial.println();
+  conteudo.toUpperCase();
+  TAG = conteudo.substring(1); // retira o primeiro espaço
+  if (TAG != "") {
+    Serial.print("TAG cadastrada: ");
+    Serial.println(TAG);
+    buzzer_aprovado();
+  } else {
+    delay(2000);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Send_Pload(uint8_t *sendData, const uint8_t len) {
   // No downlink message require
   recvMsg *RecvMsg;
@@ -264,6 +358,7 @@ void Send_Pload(uint8_t *sendData, const uint8_t len) {
   free(RecvMsg);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SendMSG(int estado_tmp) {
   msgSigfox[8] = (char)estado_tmp;
   const uint8_t payloadSize = 9; //in bytes
@@ -281,19 +376,13 @@ void SendMSG(int estado_tmp) {
   Send_Pload(buf_str, payloadSize);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void sendInterval() {
   Serial.println("Mensagem temporizada");
   SendMSG(5); //sem alteracao
 }
 
-//void watchdogSetup(void) { // Enable watchdog timer
-//  cli();  // disable all interrupts
-//  wdt_reset(); // reset the WDT timer
-//  WDTCSR |= B00011000;
-//  WDTCSR = B01110001;
-//  sei();
-//}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void watchdog_disable() { // Disable watchdog timer
   cli();  // disable all interrupts
   WDTCSR |= B00011000;
@@ -301,6 +390,7 @@ void watchdog_disable() { // Disable watchdog timer
   sei();
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ISR(WDT_vect) // Watchdog timer interrupt.
 {
   // Include your code here - be careful not to use functions they may cause the interrupt to hang and
@@ -321,6 +411,7 @@ ISR(WDT_vect) // Watchdog timer interrupt.
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void GetDeviceID() {
   recvMsg *RecvMsg;
   const char msg[] = "AT$I=10";
