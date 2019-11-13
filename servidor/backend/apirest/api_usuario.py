@@ -92,12 +92,13 @@ def obtem_usuarios_vagas():
     resp = {'usuarios': servicoUsuario.obtem(comVagas=True)}
     return jsonify(resp)
 
-# curl -i -H "Content-Type: application/json" -X POST -d '{"email":"pedro@email.com.br", "senha": "1234"}' http://localhost:5000/usuario/login
+# curl -i -H "Content-Type: application/json" -X POST -d '{"email":"pedro@email.com.br", "senha": "1234"}' http://localhost:5000/usuario/loginemail
 # curl -i -H "Content-Type: application/json" -X POST -d '{"email":"vini@email.com.br", "senha": "1234"}' http://localhost:5000/usuario/login
 @bp_usuario.route("/usuario/login", methods=["POST"])
 def create_token():
-    print("Requisição")
+    print("Requisição: ",request)
     if not request.json:
+        print("Requisição: ",request)
         abort(404)
 
     usuario = servicoUsuario.checkLogin(request.json)

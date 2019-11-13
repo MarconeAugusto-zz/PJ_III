@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private Button button_login;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText senha;
     private String username;
     private String password;
+    private String ip;
     private String baseUrl;
 
     @Override
@@ -27,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // TODO: Replace this with your own IP address or URL.
-        baseUrl = "http://192.168.43.163:5000/usuario/login";                  //colocar o ip local da máquina poara teste;
+        ip = "192.168.0.14"; //colocar o ip local da máquina poara teste;
+        baseUrl = "http://".concat(ip);
+        baseUrl = baseUrl.concat(":5000/usuario/login");
         //baseUrl = "http://0.0.0.0:3000";                  //mudar a URL
 
         email = (EditText) findViewById(R.id.email);
@@ -43,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
                     password = senha.getText().toString();
                     System.out.println(username);
                     System.out.println(password);
-                    validaDados(username, password);
 
                     ApiAuthenticationClient apiAuthenticationClient =
                             new ApiAuthenticationClient(
@@ -59,31 +62,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    public void validaDados(String email, String senha){
-        System.out.println("Valida dados");
-        if (email == null) {
-            System.out.println("Email inválido");
-            Toast toast1 = Toast.makeText(this, "E-mail deve ser preenchido", Toast.LENGTH_LONG);
-            toast1.show();
-            return;
-        }
-        if (senha == null) {
-            System.out.println("Senha inválido");
-            Toast toast2 = Toast.makeText(this, "Senha deve ser preenchida", Toast.LENGTH_LONG);
-            toast2.show();
-            return;
-        }
-    }
-
-//    public void iniciarUserActivity(View view) {
-//        // Inserir a chamada na API rest para Loggin
-//
-//        Toast toast = Toast.makeText(this, "Bem vindo, ADICIONAR O NOME DO USUARIO AQUI", Toast.LENGTH_LONG);
-//        toast.show();
-//        Intent intent = new Intent(this, UserActivity.class);
-//        startActivity(intent);
-//    }
+    //AsyncTask.e
 
     @Override
     public void onBackPressed() {
@@ -113,17 +92,14 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Open a new activity window.
      */
-    private void goToSecondActivity() {
-        Bundle bundle = new Bundle();
-        bundle.putString("username", username);
-        bundle.putString("password", password);
-        bundle.putString("baseUrl", baseUrl);
+    private void goToUserActivity() {
 
-            Intent intent = new Intent(this, UserActivity.class);
-            intent.putExtras(bundle);
-            startActivity(intent);
+        Toast toast = Toast.makeText(this, "Bem vindo, " + username, Toast.LENGTH_LONG);
+        toast.show();
+        Intent intent = new Intent(this, UserActivity.class);
+        startActivity(intent);
+
     }
-
 
     public class ExecuteNetworkOperation extends AsyncTask<Void, Void, String> {
 
@@ -136,14 +112,6 @@ public class MainActivity extends AppCompatActivity {
         public ExecuteNetworkOperation(ApiAuthenticationClient apiAuthenticationClient) {
             this.apiAuthenticationClient = apiAuthenticationClient;
         }
-//
-//    @Override
-//    protected void onPreExecute() {
-//        super.onPreExecute();
-//
-//        // Display the progress bar.
-//        findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
-//    }
 
         @Override
         protected String doInBackground(Void... params) {
@@ -162,11 +130,12 @@ public class MainActivity extends AppCompatActivity {
 
             // Login Success
             if (isValidCredentials.equals("true")) {
-                goToSecondActivity(); //iniciar a nova activity
+                //goToSecondActivity(); //iniciar a nova activity
+                goToUserActivity();
             }
             // Login Failure
             else {
-                Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Falha no login", Toast.LENGTH_LONG).show();
             }
         }
     }
