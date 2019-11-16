@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText senha;
     private String username;
     private String password;
-    private String ip;
+    public static String ip = "192.168.0.14";
     private String baseUrl;
 
     @Override
@@ -29,10 +29,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // TODO: Replace this with your own IP address or URL.
-        ip = "192.168.0.14"; //colocar o ip local da máquina poara teste;
         baseUrl = "http://".concat(ip);
         baseUrl = baseUrl.concat(":5000/usuario/login");
-        //baseUrl = "http://0.0.0.0:3000";                  //mudar a URL
 
         email = (EditText) findViewById(R.id.email);
         senha = (EditText) findViewById(R.id.senha);
@@ -45,14 +43,13 @@ public class MainActivity extends AppCompatActivity {
 
                     username = email.getText().toString();
                     password = senha.getText().toString();
-                    System.out.println(username);
-                    System.out.println(password);
 
                     ApiAuthenticationClient apiAuthenticationClient =
                             new ApiAuthenticationClient(
                                     baseUrl
                                     , username
                                     , password
+                                    , "POST"
                             );
 
                     AsyncTask<Void, Void, String> execute = new ExecuteNetworkOperation(apiAuthenticationClient);
@@ -62,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    //AsyncTask.e
 
     @Override
     public void onBackPressed() {
@@ -93,12 +89,8 @@ public class MainActivity extends AppCompatActivity {
      * Open a new activity window.
      */
     private void goToUserActivity() {
-
-        Toast toast = Toast.makeText(this, "Bem vindo, " + username, Toast.LENGTH_LONG);
-        toast.show();
         Intent intent = new Intent(this, UserActivity.class);
         startActivity(intent);
-
     }
 
     public class ExecuteNetworkOperation extends AsyncTask<Void, Void, String> {
@@ -125,16 +117,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(String result){
             super.onPostExecute(result);
-
             // Login Success
-            if (isValidCredentials.equals("true")) {
-                //goToSecondActivity(); //iniciar a nova activity
+            if (isValidCredentials == "true"){
+                Toast.makeText(getApplicationContext(), "Bem vindo, "+ User.getNome() , Toast.LENGTH_LONG).show();
                 goToUserActivity();
-            }
-            // Login Failure
-            else {
+            } else if (isValidCredentials == "admin") {
+                Toast.makeText(getApplicationContext(), "O aplicativo não é destinado para administradores", Toast.LENGTH_LONG).show();
+            } else if (isValidCredentials == "invalid") {
+                Toast.makeText(getApplicationContext(), "Login Inválido", Toast.LENGTH_LONG).show();
+            } else if (isValidCredentials == "semVaga") {
+                Toast.makeText(getApplicationContext(), "Usuário não possui vagas para monitorar", Toast.LENGTH_LONG).show();
+            }else {// Login Failure
                 Toast.makeText(getApplicationContext(), "Falha no login", Toast.LENGTH_LONG).show();
             }
         }

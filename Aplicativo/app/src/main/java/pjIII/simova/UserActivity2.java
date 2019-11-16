@@ -10,8 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-public class UserActivity extends AppCompatActivity {
+public class UserActivity2 extends AppCompatActivity {
 
     private TextView atual;
     private TextView textView;
@@ -29,19 +28,19 @@ public class UserActivity extends AppCompatActivity {
     private String tres = "Vaga ocupada e autenticada";
     private String quatro = "Vaga ocupada, porém não autenticada";
     private Button pVaga;
-    private Button anterior;
+    private Button aVaga;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user);
-
+        setContentView(R.layout.activity_user2);
         baseUrl = "http://".concat(MainActivity.ip);
-        baseUrl = baseUrl.concat(":5000/vaga/" +User.getVaga(2)+"/eventos");
+        baseUrl = baseUrl.concat(":5000/vaga/" +User.getVaga(5)+"/eventos");
 
-        atual = (TextView) findViewById(R.id.t0);
-        textView = (TextView) findViewById(R.id.textView);
-        textView.setText(textView.getText()+ User.getVaga(0));
+        atual = (TextView) findViewById(R.id.t9);
+        textView = (TextView) findViewById(R.id.textView9);
+        textView.setText(textView.getText()+ User.getVaga(3));
         if(User.getVaga(1) == "1"){
             atual.setText(um);
         }
@@ -63,34 +62,34 @@ public class UserActivity extends AppCompatActivity {
                             ,"GET"
                     );
 
-            AsyncTask<Void, Void, String> ex = new NetworkOperation(apiAuthenticationClient);
+            AsyncTask<Void, Void, String> ex = new UserActivity2.NetworkOperation(apiAuthenticationClient);
             ex.execute();
         } catch (Exception ex) {
         }
-        pVaga = (Button) findViewById(R.id.bt01);
-        pVaga.setOnClickListener(new View.OnClickListener(){
+//        pVaga = (Button) findViewById(R.id.bt02);
+//        pVaga.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                if(User.vagas.size() > 3){
+//                    goToUserActivity2();
+//                }else{
+//                    Toast.makeText(getApplicationContext(), "O usuário "+User.getNome()+ " não possui mais vagas a serem monitoradas", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//        });
+        aVaga = (Button) findViewById(R.id.bt03);
+        aVaga.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                if(User.vagas.size() > 3){
-                    goToUserActivity2();
-                }else{
-                    Toast.makeText(getApplicationContext(), "O usuário "+User.getNome()+ " não possui mais vagas a serem monitoradas", Toast.LENGTH_LONG).show();
-                }
-            }
-
-        });
-        anterior = (Button) findViewById(R.id.bt00);
-        anterior.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                goToUserActivityMain();
+                goToUserActivity();
             }
 
         });
     }
 
-    private void goToUserActivityMain() {
-        Intent intent = new Intent(this, MainActivity.class);
+    private void goToUserActivity() {
+        Intent intent = new Intent(this, UserActivity.class);
         startActivity(intent);
     }
 
@@ -99,9 +98,9 @@ public class UserActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void setEventos(){
-        evento1 = (TextView) findViewById(R.id.t1);
-        data1 = (TextView) findViewById(R.id.t11);
+    private void setEventos(){
+        evento1 = (TextView) findViewById(R.id.t5);
+        data1 = (TextView) findViewById(R.id.t51);
         if(User.eventos.size() >= 2 ){
             evento1.setText(User.getEventos(1));
             data1.setText(User.getEventos(0));
@@ -110,8 +109,8 @@ public class UserActivity extends AppCompatActivity {
             data1.setText(null);
         }
 
-        evento2 = (TextView) findViewById(R.id.t2);
-        data2 = (TextView) findViewById(R.id.t21);
+        evento2 = (TextView) findViewById(R.id.t6);
+        data2 = (TextView) findViewById(R.id.t61);
         if(User.eventos.size() >= 4 ){
             evento2.setText(User.getEventos(3));
             data2.setText(User.getEventos(2));
@@ -120,8 +119,8 @@ public class UserActivity extends AppCompatActivity {
             data2.setText(null);
         }
 
-        evento3 = (TextView) findViewById(R.id.t3);
-        data3 = (TextView) findViewById(R.id.t31);
+        evento3 = (TextView) findViewById(R.id.t7);
+        data3 = (TextView) findViewById(R.id.t71);
         if(User.eventos.size() >= 6 ){
             evento3.setText(User.getEventos(5));
             data3.setText(User.getEventos(4));
@@ -130,8 +129,8 @@ public class UserActivity extends AppCompatActivity {
             data3.setText(null);
         }
 
-        evento4 = (TextView) findViewById(R.id.t4);
-        data4 = (TextView) findViewById(R.id.t41);
+        evento4 = (TextView) findViewById(R.id.t8);
+        data4 = (TextView) findViewById(R.id.t81);
         if(User.eventos.size() >= 8 ){
             evento4.setText(User.getEventos(7));
             data4.setText(User.getEventos(6));
@@ -140,7 +139,6 @@ public class UserActivity extends AppCompatActivity {
             data4.setText(null);
         }
     }
-
     public class NetworkOperation extends AsyncTask<Void, Void, String> {
 
         private ApiAuthenticationClient apiAuthenticationClient;
@@ -176,3 +174,4 @@ public class UserActivity extends AppCompatActivity {
         }
     }
 }
+

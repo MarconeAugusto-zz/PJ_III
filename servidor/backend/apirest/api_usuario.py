@@ -107,6 +107,8 @@ def create_token():
 
     resp = {'token': generate_token(usuario)}
     resp['tipo'] = usuario.get('tipo')
+    resp['nome'] = usuario.get('nome')
+    resp['vagas'] = usuario.get('vagas')
 
     return jsonify(resp)
 

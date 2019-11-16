@@ -193,6 +193,7 @@ class ServicoUsuario(object):
         
         session = Session()
         usuario = session.query(Usuario).filter(Usuario.email == dados['email']).first()
+        vagas = [vaga.converteParaJson() for vaga in usuario.obtemVagas()]
         session.close()
 
         if  not usuario:
@@ -201,7 +202,7 @@ class ServicoUsuario(object):
         if not Usuario.checkSenha(dados['senha'], usuario.senha):
             return {'erro': 401, 'msg': 'Senha invalida'}
         
-        return {'id': usuario.id, 'email': usuario.email, 'tipo': usuario.tipo}
+        return {'id': usuario.id, 'email': usuario.email, 'tipo': usuario.tipo, 'nome': usuario.nome, 'vagas': vagas}
 
 
     def obtemResponsaveis(self, idVaga):

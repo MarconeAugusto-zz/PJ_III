@@ -1,20 +1,16 @@
 package pjIII.simova;
 
-
 import android.util.Log;
-
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.DataOutputStream;
-import java.net.URLEncoder;
-import java.util.HashMap;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Created by user on 12/8/17.
@@ -25,111 +21,45 @@ public class ApiAuthenticationClient {
     private String baseUrl;
     private String username;
     private String password;
-    //private String urlResource;
     private String httpMethod; // GET, POST, PUT, DELETE
-    //private String urlPath;
-    private String lastResponse;
-    private String payload;
-    private HashMap<String, String> parameters;
-    private Map<String, List<String>> headerFields;
+    private String token;
+    private String nome;
+    private int tipo;
+    private List<String> vagas = new ArrayList<>();
+    private List<String> eventos = new ArrayList<>();
 
     /**
-     *
-     * @param baseUrl String
+     * @param baseUrl  String
      * @param username String
      * @param password String
      */
-    public ApiAuthenticationClient(String  baseUrl, String username, String password) {
-        setBaseUrl(baseUrl);
+    public ApiAuthenticationClient(String baseUrl, String username, String password, String httpMethod) {
+        this.baseUrl = baseUrl;
         this.username = username;
         this.password = password;
-        this.httpMethod = "POST";
-        parameters = new HashMap<>();
-        lastResponse = "";
-        payload = "";
-        headerFields = new HashMap<>();
+        this.httpMethod = httpMethod;
         // This is important. The application may break without this line.
         System.setProperty("jsse.enableSNIExtension", "false");
     }
 
-    /**
-     * --&gt;http://BASE_URL.COM&lt;--/resource/path
-     * @param baseUrl the root part of the URL
-     * @return this
-     */
-    public ApiAuthenticationClient setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
-        return this;
-    }
-
-    /**
-     * Get the last response from the Rest API as a JSON Object.
-     * @return JSONObject
-     */
-    public JSONObject getLastResponseAsJsonObject() {
-        try {
-            return new JSONObject(String.valueOf(lastResponse));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Get the last response from the Rest API as a JSON Array.
-     * @return JSONArray
-     */
-    public JSONArray getLastResponseAsJsonArray() {
-        try {
-            return new JSONArray(String.valueOf(lastResponse));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Get the payload as a string from the existing parameters.
-     * @return String
-     */
-    private String getPayloadAsString() {
-        // Cycle through the parameters.
-        StringBuilder stringBuffer = new StringBuilder();
-        Iterator it = parameters.entrySet().iterator();
-        int count = 0;
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            if (count > 0) {
-                stringBuffer.append("&");
-            }
-            stringBuffer.append(pair.getKey()).append("=").append(pair.getValue());
-
-            it.remove(); // avoids a ConcurrentModificationException
-            count++;
-        }
-        System.out.println("stringBuffer: "+stringBuffer.toString());
-        return stringBuffer.toString();
-    }
 
     /**
      * Make the call to the Rest API and return its response as a string.
+     *
      * @return String
      */
     public String execute() {
-        StringBuilder outputStringBuilder = new StringBuilder();
-
         try {
             StringBuilder urlString = new StringBuilder(baseUrl);
 
             URL url = new URL(urlString.toString());
 
-            System.out.println("url: "+url);
+            Log.i("URL", String.valueOf(url));
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Content-type", "application/json");
-            //connection.setRequestProperty("Content-type", "text/html; charset=UTF-8");
-            connection.setRequestMethod("POST");
+            connection.setRequestMethod(httpMethod);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
@@ -147,17 +77,111 @@ public class ApiAuthenticationClient {
             connection.connect();
 
             Log.i("STATUS", String.valueOf(connection.getResponseCode()));
-            Log.i("MSG" , connection.getResponseMessage());
+            Log.i("MSG", connection.getResponseMessage());
 
-            if (connection.getResponseCode() == 200){
-                return "true";
+            if (connection.getResponseCode() == 200) {
+                InputStream inputStream = connection.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                Scanner scanner = new Scanner(inputStreamReader);
+                StringBuffer stringBuffer = new StringBuffer();
+                while (scanner.hasNext()) {
+                    stringBuffer.append(scanner.nextLine());
+                }
+                JSONObject jsonObject = new JSONObject(stringBuffer.toString());
+                JSONArray jsonArray = (JSONArray) jsonObject.get("vagas");
+                nome = jsonObject.getString("nome");
+                tipo = jsonObject.getInt("tipo");
+                token = jsonObject.getString("token");
+
+                if (jsonArray.length() == 0){
+                    return "semVaga";
+                }
+                for (int j = 0; j < jsonArray.length(); j++) {
+                    JSONObject jsonObject2 = (JSONObject) jsonArray.get(j);
+                    System.out.println(jsonObject2);
+                    vagas.add(jsonObject2.getString("identificador"));
+                    vagas.add(String.valueOf(jsonObject2.getInt("estado")));
+                    vagas.add(String.valueOf(jsonObject2.getInt("id")));
+                }
+                Log.i("NOME", String.valueOf(nome));
+                Log.i("TIPO", String.valueOf(tipo));
+                Log.i("TOKEN", String.valueOf(token));
+                Log.i("VAGAS", String.valueOf(vagas));
+
+                if (tipo == 1) {
+                    return "admin";
+                } else {
+                    User user = new User();
+                    user.setNome(nome);
+                    user.setToken(token);
+                    user.setVagas(vagas);
+                    return "true";
+                }
             }
-
+            if (connection.getResponseCode() == 401 || connection.getResponseCode() == 403) {
+                return "invalid";
+            }
             connection.disconnect();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return outputStringBuilder.toString();
+        return "false";
+    }
+
+
+    /**
+     * Make the call to the Rest API and return its response as a string.
+     *
+     * @return String
+     */
+    public String ex() {
+        try {
+            //StringBuilder urlString = new StringBuilder(baseUrl);
+            URL url = new URL(baseUrl);
+
+            Log.i("URL", String.valueOf(url));
+            Log.i("MÉTODO",String.valueOf(httpMethod));
+            Log.i("TOKEN", String.valueOf(User.getToken()));
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod(httpMethod);
+            connection.setRequestProperty("Authorization", User.getToken());
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-type", "application/json");
+            connection.connect();
+
+            Log.i("STATUS", String.valueOf(connection.getResponseCode()));
+            Log.i("MSG", connection.getResponseMessage());
+
+            if (connection.getResponseCode() == 200) {
+                InputStream inputStream = connection.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                Scanner scanner = new Scanner(inputStreamReader);
+                StringBuffer stringBuffer = new StringBuffer();
+                while (scanner.hasNext()) {
+                    stringBuffer.append(scanner.nextLine());
+                }
+                JSONObject jsonObject = new JSONObject(stringBuffer.toString());
+                JSONArray jsonArray = (JSONArray) jsonObject.get("eventos");
+                for (int j = 0; j < jsonArray.length(); j++) {
+                    JSONObject jsonObject2 = (JSONObject) jsonArray.get(j);
+                    System.out.println(jsonObject2);
+                    eventos.add(jsonObject2.getString("data"));
+                    eventos.add(jsonObject2.getString("tipo"));
+
+                }
+                User.setEventos(eventos);
+                connection.disconnect();
+                return "true";
+            }
+            if (connection.getResponseCode() == 401 || connection.getResponseCode() == 403) {
+                connection.disconnect();
+                return "invalid";
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "false";
     }
 }
