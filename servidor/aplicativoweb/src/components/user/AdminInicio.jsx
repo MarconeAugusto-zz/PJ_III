@@ -4,6 +4,11 @@ import api from '../../services/api'
 import Main from '../templates/Main'
 import './AdminInicio.css'
 
+// import { Connector } from 'mqtt-react';
+// import { subscribe } from 'mqtt-react';
+var mqtt = require('mqtt')
+
+
 const headerProps = {
     icon: 'home',
     title: 'Início',
@@ -40,6 +45,62 @@ export default class AdminInicio extends Component {
     componentWillMount() {
         this.setState({ modalShow: false })
         this.getStatus()
+        // subscribe({topic: '@topico/teste'})(this.mqttMessage)
+
+        var client  = mqtt.connect('mqtt://localhost:9001')
+
+        client.on('connect', function () {
+        client.subscribe('simova/vaga/evento', function (err) {
+            if (err) {
+                console.log("Erro ao inicializar MQTT")
+            }
+        })
+        })
+
+        client.on('message', this.mqttMessage.bind(this))
+    }
+
+    estadoVagaString(estado) {
+        switch (estado) {
+            case 1:
+                return 'Livre AUT OK'
+            case 2:
+                return 'Livre AUT NOK'
+            case 3:
+                return 'Ocupado AUT OK'
+            case 4:
+                return 'Ocupado AUT NOK'
+            default:
+                return 'Estado invalido'
+        }
+    }
+
+    mqttMessage(topic, eventoStr) {
+        const vagasAntigas = { ...this.state.vagas }
+        const eventosAntigos = { ...this.state.eventos }
+        let novasVagas = []
+        let novosEventos = []
+
+        var evento = JSON.parse(eventoStr);
+        const identificador = evento.identificadorVaga
+
+        Object.keys(vagasAntigas).forEach(function (key){
+            const vaga = vagasAntigas[key]
+            if (vaga.identificador === identificador) {
+                vaga.estado = evento.tipo_int
+                vaga.estado_str = this.estadoVagaString(evento.tipo_int)
+            }
+            novasVagas.push(vaga)
+        }.bind(this));
+ 
+        novosEventos.push(evento)
+        Object.keys(eventosAntigos).forEach(function (key){
+            novosEventos.push(eventosAntigos[key])
+        });
+        novosEventos.pop()
+
+        this.setState({ vagas : novasVagas })
+        this.setState({ eventos : novosEventos })
     }
 
     // componentDidMount() {
@@ -59,7 +120,7 @@ export default class AdminInicio extends Component {
 
         api.get('/eventos', {
             params: {
-                limit: 20
+                limit: 5
             }
         }).then(resp => {
             this.setState({ eventos: resp.data })
@@ -211,11 +272,13 @@ export default class AdminInicio extends Component {
           </Modal>
         );
       }
-
+      
 
     render() {
         return (
+            // <Connector mqttProps="ws://127.0.0.1:9001/">
             <Main {...headerProps}>
+                
                 <h2>Estados das Vagas</h2>
                 {this.renderTableVagas()}
                 <br></br>
@@ -224,7 +287,9 @@ export default class AdminInicio extends Component {
                 <this.MyVerticallyCenteredModal
                     show={this.state.modalShow}
                     onHide={() => this.setModalShow(false)}/>
+                
             </Main>
+            // </Connector>
         )
     }
 }

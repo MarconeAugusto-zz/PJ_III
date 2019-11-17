@@ -3,6 +3,9 @@ from entidades.usuario import Usuario
 from entidades.evento import Evento
 from entidades.base import Session
 
+import paho.mqtt.publish as publish
+import json
+
 class ServicoVaga(object):
     def obtem(self, idVaga=None):
         session = Session()
@@ -187,6 +190,9 @@ class ServicoVaga(object):
 
             session.add(evento)
             session.commit()
+
+            # publica evento MQTT
+            publish.single("simova/vaga/evento", json.dumps(evento.converteParaJson(mqtt=True)), hostname="localhost", port=1885)
 
         except ValueError:
             return {'erro': 400, 'msg': 'Valor de parametro invalido'}
