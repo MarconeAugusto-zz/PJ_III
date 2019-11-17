@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ public class UserActivity extends AppCompatActivity {
     private String quatro = "Vaga ocupada, porém não autenticada";
     private Button pVaga;
     private Button anterior;
+    private ImageButton conf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,6 @@ public class UserActivity extends AppCompatActivity {
             atual.setText(quatro);
 
         try {
-
             ApiAuthenticationClient apiAuthenticationClient =
                     new ApiAuthenticationClient(
                             baseUrl
@@ -87,6 +88,19 @@ public class UserActivity extends AppCompatActivity {
             }
 
         });
+        conf = (ImageButton) findViewById(R.id.IB);
+        conf.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                goToSettingsActivity();
+            }
+
+        });
+    }
+
+    private void goToSettingsActivity() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     private void goToUserActivityMain() {

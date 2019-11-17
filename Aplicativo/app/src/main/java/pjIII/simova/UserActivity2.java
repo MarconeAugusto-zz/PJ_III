@@ -66,18 +66,6 @@ public class UserActivity2 extends AppCompatActivity {
             ex.execute();
         } catch (Exception ex) {
         }
-//        pVaga = (Button) findViewById(R.id.bt02);
-//        pVaga.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                if(User.vagas.size() > 3){
-//                    goToUserActivity2();
-//                }else{
-//                    Toast.makeText(getApplicationContext(), "O usuário "+User.getNome()+ " não possui mais vagas a serem monitoradas", Toast.LENGTH_LONG).show();
-//                }
-//            }
-//
-//        });
         aVaga = (Button) findViewById(R.id.bt03);
         aVaga.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -93,10 +81,6 @@ public class UserActivity2 extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void goToUserActivity2() {
-        Intent intent = new Intent(this, UserActivity2.class);
-        startActivity(intent);
-    }
 
     private void setEventos(){
         evento1 = (TextView) findViewById(R.id.t5);
@@ -139,6 +123,7 @@ public class UserActivity2 extends AppCompatActivity {
             data4.setText(null);
         }
     }
+
     public class NetworkOperation extends AsyncTask<Void, Void, String> {
 
         private ApiAuthenticationClient apiAuthenticationClient;

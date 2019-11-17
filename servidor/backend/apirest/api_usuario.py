@@ -96,9 +96,7 @@ def obtem_usuarios_vagas():
 # curl -i -H "Content-Type: application/json" -X POST -d '{"email":"vini@email.com.br", "senha": "1234"}' http://localhost:5000/usuario/login
 @bp_usuario.route("/usuario/login", methods=["POST"])
 def create_token():
-    print("Requisição: ",request)
     if not request.json:
-        print("Requisição: ",request)
         abort(404)
 
     usuario = servicoUsuario.checkLogin(request.json)
@@ -109,6 +107,8 @@ def create_token():
     resp['tipo'] = usuario.get('tipo')
     resp['nome'] = usuario.get('nome')
     resp['vagas'] = usuario.get('vagas')
+    resp['id'] = usuario.get('id')
+   
 
     return jsonify(resp)
 
