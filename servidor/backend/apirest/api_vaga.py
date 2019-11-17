@@ -13,7 +13,7 @@ bp_vaga = Blueprint('bp_vaga', __name__)
 
 # curl -i http://localhost:5000/vaga
 @bp_vaga.route('/vagas', methods=['GET'])
-@requires_auth_admin
+# @requires_auth_admin
 def obtem_vagas():
     resp = {'vagas': servicoVaga.obtem()}
     return jsonify(resp)

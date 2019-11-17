@@ -11,10 +11,10 @@ class TipoEvento(object):
     ESTACIONOU_AUT_NOK = 4
 
     evento_str = {
-        SAIU_AUT_OK: 'Saiu com autenticação OK',
-        SAIU_AUT_NOK: 'Saiu sem autenticação',
-        ESTACIONOU_AUT_OK: 'Estacionou com autenticação OK',
-        ESTACIONOU_AUT_NOK: 'Estacionou sem autenticação'
+        SAIU_AUT_OK: 'Saiu com autenticacao OK',
+        SAIU_AUT_NOK: 'Saiu sem autenticacao',
+        ESTACIONOU_AUT_OK: 'Estacionou com autenticacao OK',
+        ESTACIONOU_AUT_NOK: 'Estacionou sem autenticacao'
     }
 
     lista_estados = [
@@ -41,11 +41,12 @@ class Evento(Base):
         self.data = data if data is not None else datetime.now()
 
 
-    def converteParaJson(self):
+    def converteParaJson(self, mqtt=False):
         eventoJson = {
             'id': self.id,
             'tipo': TipoEvento.evento_str[self.tipo],
-            'data': self.data,
+            'tipo_int': self.tipo,
+            'data': self.data if not mqtt else datetime.strftime(self.data, "%a, %-d %b %Y %H:%M:%S GMT"),
             'identificadorVaga': self.vaga_id
         }
         return eventoJson

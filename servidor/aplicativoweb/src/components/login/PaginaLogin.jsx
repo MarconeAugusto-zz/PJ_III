@@ -23,12 +23,14 @@ export default class PaginaLogin extends Component {
           try {
             const response = await api.post("/usuario/login", { email, senha });
             login(response.data.token);
-            if (response.data.tipo === 1)
-                this.props.history.push("/HomeAdmin");
-            else
-                this.setState({
-                    erro: "Login não pôde ser realizado. Apenas administradores tem acesso ao sistema de gerenciamento."
-                });
+            console.log(response.data)
+            this.props.history.push("/HomeAdmin");
+            // if (response.data.tipo === 1)
+            //     this.props.history.push("/HomeAdmin");
+            // else
+            //     this.setState({
+            //         erro: "Login não pôde ser realizado. Apenas administradores tem acesso ao sistema de gerenciamento."
+            //     });
           } catch (err) {
             this.setState({
               erro: "Login não pôde ser realizado. Verifique suas credenciais."
