@@ -21,7 +21,7 @@
 #define RST_PIN 49
 //Constantes Ultrassônico
 #define pino_trigger 47
-#define pino_echo 46
+#define pino_echo 45
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); //Instância MFRC522.
 Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
@@ -29,7 +29,7 @@ Ultrasonic ultrasonic(pino_trigger, pino_echo);//Instancia Sensor
 //Variáveis
 String mensagem, TAG = "", IdVaga = "A01";  //exemplo 7 bytes, limitado a 8 bytes no node-red
 char msgSigfox[9];
-int watchdogCounter, ledVerde = 45, ledCadastro = 42, buzzer = 48, estado = 2, estado_tmp, interruptPin = 44, tempoEspera = 10000; // 10 segundos.
+int watchdogCounter, ledVerde = 43, ledCadastro = 39, buzzer = 25, estado = 2, estado_tmp, interruptPin = 41, tempoEspera = 10000; // 10 segundos.
 float distancia = 10.0, dist; // distancia utilizada 15 cm
 boolean autentica_tmp, autentica = false, debug = true, cadastro = false;
 uint8_t PublicModeSF, stateLED, ledCounter;
