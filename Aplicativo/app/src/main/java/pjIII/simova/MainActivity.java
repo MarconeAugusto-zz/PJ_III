@@ -20,7 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText senha;
     private String username;
     private String password;
-    public static String ip = "192.168.0.14";
+    //public static String ip = "192.168.0.14";
+    public static String ip = "10.0.0.150";
     private String baseUrl;
 
     @Override

@@ -60,7 +60,7 @@ public class SettingsActivity extends AppCompatActivity {
                     senha.setError("Os campos não podem estar em branco");
                     repeteSenha.setError("Os campos não podem estar em branco");
                 }
-                if (senha.getText().toString().equals(repeteSenha.getText().toString()) == false) {
+                else if (senha.getText().toString().equals(repeteSenha.getText().toString()) == false) {
                     repeteSenha.setError("As senhas devem ser iguais");
                 } else {
                     User.setSenha(repeteSenha.getText().toString());
