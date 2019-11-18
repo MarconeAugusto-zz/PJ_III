@@ -10,7 +10,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -20,9 +24,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText senha;
     private String username;
     private String password;
-    //public static String ip = "192.168.0.14";
-    public static String ip = "10.0.0.150";
+    public static String ip = "192.168.0.14";
+    //public static String ip = "10.0.0.150";
     private String baseUrl;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +41,15 @@ public class MainActivity extends AppCompatActivity {
         email = (EditText) findViewById(R.id.email);
         senha = (EditText) findViewById(R.id.senha);
         button_login = (Button) findViewById(R.id.button);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(GONE);
 
         button_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
+
+                    progressBar.setVisibility(VISIBLE);
 
                     username = email.getText().toString();
                     password = senha.getText().toString();
@@ -122,15 +131,20 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(result);
             // Login Success
             if (isValidCredentials == "true"){
+                progressBar.setVisibility(GONE);
                 Toast.makeText(getApplicationContext(), "Bem vindo, "+ User.getNome() , Toast.LENGTH_LONG).show();
                 goToUserActivity();
             } else if (isValidCredentials == "admin") {
+                progressBar.setVisibility(GONE);
                 Toast.makeText(getApplicationContext(), "O aplicativo não é destinado para administradores", Toast.LENGTH_LONG).show();
             } else if (isValidCredentials == "invalid") {
+                progressBar.setVisibility(GONE);
                 Toast.makeText(getApplicationContext(), "Login Inválido", Toast.LENGTH_LONG).show();
             } else if (isValidCredentials == "semVaga") {
+                progressBar.setVisibility(GONE);
                 Toast.makeText(getApplicationContext(), "Usuário não possui vagas para monitorar", Toast.LENGTH_LONG).show();
             }else {// Login Failure
+                progressBar.setVisibility(GONE);
                 Toast.makeText(getApplicationContext(), "Falha no login", Toast.LENGTH_LONG).show();
             }
         }
