@@ -63,6 +63,7 @@ public class ApiAuthenticationClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Content-type", "application/json");
             connection.setRequestMethod(httpMethod);
+            connection.setConnectTimeout(5000);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
@@ -90,6 +91,7 @@ public class ApiAuthenticationClient {
                 while (scanner.hasNext()) {
                     stringBuffer.append(scanner.nextLine());
                 }
+                System.out.println("STRING BUFFER >>>>>>>" +stringBuffer);
                 JSONObject jsonObject = new JSONObject(stringBuffer.toString());
                 JSONArray jsonArray = (JSONArray) jsonObject.get("vagas");
                 nome = jsonObject.getString("nome");
