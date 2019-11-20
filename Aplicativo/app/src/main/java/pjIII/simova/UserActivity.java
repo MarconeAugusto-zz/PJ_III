@@ -44,13 +44,14 @@ public class UserActivity extends AppCompatActivity {
         atual = (TextView) findViewById(R.id.t0);
         textView = (TextView) findViewById(R.id.textView);
         textView.setText(textView.getText()+ User.getVaga(0));
-        if(User.getVaga(1) == "1"){
+        System.out.println("VAGAAAAAAAAA :" + User.getVaga(1));
+        if(User.getVaga(1).equals("1")){
             atual.setText(um);
         }
-        else if (User.getVaga(1) == "2"){
+        else if (User.getVaga(1).equals("2")){
             atual.setText(dois);
         }
-        else if (User.getVaga(1) == "3"){
+        else if (User.getVaga(1).equals("3")){
             atual.setText(tres);
         }else
             atual.setText(quatro);
