@@ -24,6 +24,8 @@ public class UserActivity extends AppCompatActivity {
     private TextView data3;
     private TextView evento4;
     private TextView data4;
+    private TextView evento5;
+    private TextView data5;
     private String baseUrl;
     private String um = "Vaga livre e autenticada";
     private String dois = "Vaga livre, porém não autenticada";
@@ -44,18 +46,6 @@ public class UserActivity extends AppCompatActivity {
         atual = (TextView) findViewById(R.id.t0);
         textView = (TextView) findViewById(R.id.textView);
         textView.setText(textView.getText()+ User.getVaga(0));
-        System.out.println("VAGAAAAAAAAA :" + User.getVaga(1));
-        if(User.getVaga(1).equals("1")){
-            atual.setText(um);
-        }
-        else if (User.getVaga(1).equals("2")){
-            atual.setText(dois);
-        }
-        else if (User.getVaga(1).equals("3")){
-            atual.setText(tres);
-        }else
-            atual.setText(quatro);
-
         try {
             ApiAuthenticationClient apiAuthenticationClient =
                     new ApiAuthenticationClient(
@@ -99,6 +89,20 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    private void statusAtual() {
+        System.out.println("INFO LISTA >>>>>>>"+User.getVaga(1));
+        if(User.getEventos(2).equals("1")){
+            atual.setText(um);
+        }
+        else if (User.getEventos(2).equals("2")){
+            atual.setText(dois);
+        }
+        else if (User.getEventos(2).equals("3")){
+            atual.setText(tres);
+        }else
+            atual.setText(quatro);
+    }
+
     private void goToSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
@@ -117,9 +121,10 @@ public class UserActivity extends AppCompatActivity {
     public void setEventos(){
         evento1 = (TextView) findViewById(R.id.t1);
         data1 = (TextView) findViewById(R.id.t11);
-        if(User.eventos.size() >= 2 ){
+        if(User.eventos.size() >= 3 ){
             evento1.setText(User.getEventos(1));
             data1.setText(User.getEventos(0));
+            statusAtual();
         }else{
             evento1.setText(null);
             data1.setText(null);
@@ -127,9 +132,9 @@ public class UserActivity extends AppCompatActivity {
 
         evento2 = (TextView) findViewById(R.id.t2);
         data2 = (TextView) findViewById(R.id.t21);
-        if(User.eventos.size() >= 4 ){
-            evento2.setText(User.getEventos(3));
-            data2.setText(User.getEventos(2));
+        if(User.eventos.size() >= 6 ){
+            evento2.setText(User.getEventos(4));
+            data2.setText(User.getEventos(3));
         }else {
             evento2.setText(null);
             data2.setText(null);
@@ -137,9 +142,9 @@ public class UserActivity extends AppCompatActivity {
 
         evento3 = (TextView) findViewById(R.id.t3);
         data3 = (TextView) findViewById(R.id.t31);
-        if(User.eventos.size() >= 6 ){
-            evento3.setText(User.getEventos(5));
-            data3.setText(User.getEventos(4));
+        if(User.eventos.size() >= 9 ){
+            evento3.setText(User.getEventos(7));
+            data3.setText(User.getEventos(6));
         }else {
             evento3.setText(null);
             data3.setText(null);
@@ -147,12 +152,22 @@ public class UserActivity extends AppCompatActivity {
 
         evento4 = (TextView) findViewById(R.id.t4);
         data4 = (TextView) findViewById(R.id.t41);
-        if(User.eventos.size() >= 8 ){
-            evento4.setText(User.getEventos(7));
-            data4.setText(User.getEventos(6));
+        if(User.eventos.size() >= 12 ){
+            evento4.setText(User.getEventos(10));
+            data4.setText(User.getEventos(9));
         }else{
             evento4.setText(null);
             data4.setText(null);
+        }
+
+        evento5 = (TextView) findViewById(R.id.t9);
+        data5 = (TextView) findViewById(R.id.t91);
+        if(User.eventos.size() >= 15 ){
+            evento5.setText(User.getEventos(13));
+            data5.setText(User.getEventos(12));
+        }else{
+            evento5.setText(null);
+            data5.setText(null);
         }
     }
 

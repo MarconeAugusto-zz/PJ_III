@@ -33,6 +33,7 @@
 
         android:inputType="textEmailAddress"
         android:textColor="#3D5367"
+        android:textColorLink="#3D5367"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
@@ -48,6 +49,7 @@
         android:hint="senha"
         android:inputType="textPassword"
         android:textColor="#3D5367"
+        android:textColorLink="#3D5367"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />

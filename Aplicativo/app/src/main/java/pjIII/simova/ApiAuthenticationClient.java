@@ -171,12 +171,13 @@ public class ApiAuthenticationClient {
                 JSONArray jsonArray = (JSONArray) jsonObject.get("eventos");
                 for (int j = 0; j < jsonArray.length(); j++) {
                     JSONObject jsonObject2 = (JSONObject) jsonArray.get(j);
-                    System.out.println(jsonObject2);
                     eventos.add(jsonObject2.getString("data"));
                     eventos.add(jsonObject2.getString("tipo"));
+                    eventos.add(String.valueOf(jsonObject2.getInt("tipo_int")));
 
                 }
                 User.setEventos(eventos);
+                Log.i("LISTA DE EVENTOS >>>>>", String.valueOf(eventos));
                 connection.disconnect();
                 return "true";
             }

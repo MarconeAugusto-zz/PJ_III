@@ -6,6 +6,34 @@
     android:layout_height="match_parent"
     tools:context=".UserActivity">
 
+    <TextView
+        android:id="@+id/t91"
+        android:layout_width="170dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:text="Mon, 20 Oct 2019 20:09:01 GMT"
+        android:textAlignment="center"
+        android:textColor="#3D5367"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/t41" />
+
+    <TextView
+        android:id="@+id/t4"
+        android:layout_width="170dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="40dp"
+        android:text="Estacionou com autenticação OK"
+        android:textAlignment="center"
+        android:textColor="#3D5367"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/t41"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/t3" />
+
     <Button
         android:id="@+id/bt00"
         android:layout_width="134dp"
@@ -39,20 +67,17 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/t4"
+        android:id="@+id/t9"
         android:layout_width="170dp"
         android:layout_height="30dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="60dp"
         android:text="Estacionou com autenticação OK"
         android:textAlignment="center"
         android:textColor="#3D5367"
         android:textSize="12sp"
-        app:layout_constraintEnd_toStartOf="@+id/t41"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/t3" />
+        app:layout_constraintTop_toBottomOf="@+id/t4" />
 
     <TextView
         android:id="@+id/t41"
@@ -158,7 +183,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="80dp"
         android:text="Últimos eventos"
         android:textAlignment="center"
         android:textColor="#3D5367"
