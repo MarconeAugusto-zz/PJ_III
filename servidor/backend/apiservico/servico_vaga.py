@@ -142,6 +142,9 @@ class ServicoVaga(object):
             for evento in vaga.eventos:
                 eventos.append(evento.converteParaJson())
 
+            # Retorna os eventos ordenados
+            eventos.sort(key=lambda e:e['id'], reverse=True)
+
         except Exception as e:
             print(str(e))
             return {'erro': 500, 'msg': 'Erro ao obter eventos'}
