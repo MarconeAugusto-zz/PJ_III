@@ -101,6 +101,7 @@ export default class AdminInicio extends Component {
 
         this.setState({ vagas : novasVagas })
         this.setState({ eventos : novosEventos })
+        this.forceUpdate()
     }
 
     // componentDidMount() {
