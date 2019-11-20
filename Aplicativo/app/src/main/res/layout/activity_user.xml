@@ -4,35 +4,62 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UserActivity">
+    tools:context=".UserActivity"
+    tools:layout_editor_absoluteY="25dp">
 
-    <TextView
-        android:id="@+id/t91"
-        android:layout_width="170dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:text="Mon, 20 Oct 2019 20:09:01 GMT"
-        android:textAlignment="center"
-        android:textColor="#3D5367"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/t41" />
+    <View
+        android:id="@+id/Divisor5"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="6dp"
+        android:layout_height="2dip"
+        android:background="#3D5367"
+        app:layout_constraintTop_toBottomOf="@+id/t9"
+        tools:layout_editor_absoluteX="-36dp" />
 
-    <TextView
-        android:id="@+id/t4"
-        android:layout_width="170dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="40dp"
-        android:text="Estacionou com autenticação OK"
-        android:textAlignment="center"
-        android:textColor="#3D5367"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toStartOf="@+id/t41"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/t3" />
+    <View
+        android:id="@+id/Divisor4"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="6dp"
+        android:layout_height="2dip"
+        android:background="#3D5367"
+        app:layout_constraintTop_toBottomOf="@+id/t4"
+        tools:layout_editor_absoluteX="-36dp" />
+
+    <View
+        android:id="@+id/Divisor3"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="6dp"
+        android:layout_height="2dip"
+        android:background="#3D5367"
+        app:layout_constraintTop_toBottomOf="@+id/t3"
+        tools:layout_editor_absoluteX="-36dp" />
+
+    <View
+        android:id="@+id/Divisor2"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="6dp"
+        android:layout_height="2dip"
+        android:background="#3D5367"
+        app:layout_constraintTop_toBottomOf="@+id/t2"
+        tools:layout_editor_absoluteX="-36dp" />
+
+    <View
+        android:id="@+id/Divisor1"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:layout_marginTop="26dp"
+        android:background="#3D5367"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        tools:layout_editor_absoluteX="-36dp" />
+
+    <View
+        android:id="@+id/Divisor0"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="6dp"
+        android:layout_height="2dip"
+        android:background="#3D5367"
+        app:layout_constraintTop_toBottomOf="@+id/t1"
+        tools:layout_editor_absoluteX="-36dp" />
 
     <Button
         android:id="@+id/bt00"
@@ -73,15 +100,41 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:text="Estacionou com autenticação OK"
-        android:textAlignment="center"
+        android:textAlignment="textStart"
         android:textColor="#3D5367"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/t4" />
 
     <TextView
-        android:id="@+id/t41"
+        android:id="@+id/t91"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:text="Mon, 20 Oct 2019 20:09:01 GMT"
+        android:textAlignment="center"
+        android:textColor="#3D5367"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/t41" />
+
+    <TextView
+        android:id="@+id/t4"
         android:layout_width="170dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="Estacionou com autenticação OK"
+        android:textAlignment="textStart"
+        android:textColor="#3D5367"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/t3" />
+
+    <TextView
+        android:id="@+id/t41"
+        android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
@@ -94,7 +147,7 @@
 
     <TextView
         android:id="@+id/t31"
-        android:layout_width="170dp"
+        android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
@@ -111,19 +164,16 @@
         android:layout_height="30dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="80dp"
         android:text="Estacionou com autenticação OK"
-        android:textAlignment="center"
+        android:textAlignment="textStart"
         android:textColor="#3D5367"
         android:textSize="12sp"
-        app:layout_constraintEnd_toStartOf="@+id/t31"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/t2" />
 
     <TextView
         android:id="@+id/t21"
-        android:layout_width="170dp"
+        android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
@@ -140,21 +190,18 @@
         android:layout_height="30dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="80dp"
         android:text="Estacionou com autenticação OK"
-        android:textAlignment="center"
+        android:textAlignment="textStart"
         android:textColor="#3D5367"
         android:textSize="12sp"
-        app:layout_constraintEnd_toStartOf="@+id/t21"
-        app:layout_constraintHorizontal_bias="0.01"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/t1" />
 
     <TextView
         android:id="@+id/t11"
-        android:layout_width="170dp"
+        android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="44dp"
         android:layout_marginEnd="16dp"
         android:text="Mon, 20 Oct 2019 20:09:01 GMT"
         android:textAlignment="center"
@@ -168,14 +215,11 @@
         android:layout_width="170dp"
         android:layout_height="30dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="80dp"
+        android:layout_marginTop="44dp"
         android:text="Saiu com autenticação OK"
-        android:textAlignment="center"
+        android:textAlignment="textStart"
         android:textColor="#3D5367"
         android:textSize="12sp"
-        app:layout_constraintEnd_toStartOf="@+id/t11"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
@@ -183,7 +227,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
         android:text="Últimos eventos"
         android:textAlignment="center"
         android:textColor="#3D5367"
@@ -197,7 +241,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
+        android:layout_marginTop="70dp"
         android:text="Estado atual da Vaga: "
         android:textAlignment="center"
         android:textColor="#3D5367"
@@ -225,7 +269,7 @@
 
     <ImageButton
         android:id="@+id/IB"
-        android:layout_width="42dp"
+        android:layout_width="49dp"
         android:layout_height="49dp"
         android:layout_marginTop="6dp"
         android:layout_marginEnd="6dp"
@@ -233,5 +277,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_settings_black_24dp" />
+
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="49dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/fuscap" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

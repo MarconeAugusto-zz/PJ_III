@@ -34,6 +34,7 @@ public class UserActivity extends AppCompatActivity {
     private Button pVaga;
     private Button anterior;
     private ImageButton conf;
+    private ImageButton about;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,20 @@ public class UserActivity extends AppCompatActivity {
             }
 
         });
+        about = (ImageButton) findViewById(R.id.imageButton3);
+        about.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                goToAboutActivity();
+            }
+
+        });
+
+    }
+
+    private void goToAboutActivity() {
+        Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
     }
 
     private void statusAtual() {

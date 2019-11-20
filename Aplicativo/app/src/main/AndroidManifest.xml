@@ -17,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:usesCleartextTraffic="true">
+        <activity android:name=".AboutActivity"></activity>
         <activity
             android:name=".SettingsActivity"
             android:screenOrientation="portrait" />
