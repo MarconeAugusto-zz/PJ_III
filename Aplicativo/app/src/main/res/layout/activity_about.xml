@@ -8,13 +8,13 @@
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="289dp"
-        android:layout_height="143dp"
+        android:layout_width="350dp"
+        android:layout_height="150dp"
         android:layout_marginStart="6dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="6dp"
         android:lineSpacingExtra="1dp"
-        android:text="Sistema de monitoramento de vagas desenvolvido durante a disciplina de projeto integrador 3, do curso de Engenharia de telecomunicações do IFSC - Instituto Federal de Santa Catarina"
+        android:text="Sistema de monitoramento de vagas  \n desenvolvido como projeto na disciplina de Projeto Integrador III,  componente curricular curso de Engenharia de Telecomunicações \n \n IFSC - Instituto Federal de Santa Catarina"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
