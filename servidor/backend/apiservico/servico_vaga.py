@@ -2,6 +2,7 @@ from entidades.vaga import Vaga
 from entidades.usuario import Usuario
 from entidades.evento import Evento
 from entidades.base import Session
+from TestFirebase import *
 
 import paho.mqtt.publish as publish
 import json
@@ -196,6 +197,10 @@ class ServicoVaga(object):
 
             # publica evento MQTT
             publish.single("simova/vaga/evento", json.dumps(evento.converteParaJson(mqtt=True)), hostname="localhost", port=1885)
+
+            firebase = testFirebase()
+            info = evento.converteParaJson()
+            firebase.enviar(info)
 
         except ValueError:
             return {'erro': 400, 'msg': 'Valor de parametro invalido'}
