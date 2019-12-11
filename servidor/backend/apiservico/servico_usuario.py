@@ -193,11 +193,16 @@ class ServicoUsuario(object):
         
         session = Session()
         usuario = session.query(Usuario).filter(Usuario.email == dados['email']).first()
-        vagas = [vaga.converteParaJson() for vaga in usuario.obtemVagas()]
-        session.close()
 
         if  not usuario:
+            session.close()
             return {'erro': 403, 'msg': 'Usuario nao encontrado'}
+        
+        vagas = []
+        if len(usuario.obtemVagas()):
+            vagas = [vaga.converteParaJson() for vaga in usuario.obtemVagas()]
+        
+        session.close()
             
         if not Usuario.checkSenha(dados['senha'], usuario.senha):
             return {'erro': 401, 'msg': 'Senha invalida'}
