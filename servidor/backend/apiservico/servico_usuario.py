@@ -3,6 +3,7 @@ from entidades.base import Session
 from entidades.vaga import Vaga
 from entidades.contato import Contato
 
+
 class ServicoUsuario(object):
     def obtem(self, idUsuario=None, comVagas=False):
         session = Session()
@@ -47,9 +48,9 @@ class ServicoUsuario(object):
 
                     if vaga is None:
                         return {'erro': 404, 'msg': 'Vaga nao encontrada'}
-                    
+
                     vagas.append(vaga)
-                
+
                 if len(vagas):
                     usuario.setaVagas(vagas)
 
@@ -59,7 +60,8 @@ class ServicoUsuario(object):
             fone_trabalho = dados.get('fone_trabalho', None)
             celular_1 = dados.get('celular_1', None)
             celular_2 = dados.get('celular_2', None)
-            contato = Contato(usuario, fone_residencial=fone_residencial, fone_trabalho=fone_trabalho, celular_1=celular_1, celular_2=celular_2)
+            contato = Contato(usuario, fone_residencial=fone_residencial, fone_trabalho=fone_trabalho,
+                              celular_1=celular_1, celular_2=celular_2)
             session.add(contato)
 
             session.commit()
@@ -69,13 +71,13 @@ class ServicoUsuario(object):
             return {'erro': 500, 'msg': 'Erro ao adicionar usuario', 'exc': str(e)}
         finally:
             session.close()
-        
+
         return {'msg': 'Usuario adicionado', 'usuario': usuarioJson}
 
     def alteraUsuario(self, idUsuario, dados):
         session = Session()
         usuarioJson = {}
-        
+
         try:
             usuario = session.query(Usuario).filter(Usuario.id == idUsuario).first()
             if usuario is None:
@@ -116,7 +118,8 @@ class ServicoUsuario(object):
                     celular_1 = dados.get('celular_1', None)
                     celular_2 = dados.get('celular_2', None)
 
-                    contato = Contato(usuario, fone_residencial=fone_residencial, fone_trabalho=fone_trabalho, celular_1=celular_1, celular_2=celular_2)
+                    contato = Contato(usuario, fone_residencial=fone_residencial, fone_trabalho=fone_trabalho,
+                                      celular_1=celular_1, celular_2=celular_2)
                     session.add(contato)
 
             session.commit()
@@ -160,7 +163,7 @@ class ServicoUsuario(object):
         if usuario is None:
             sessao.close()
             return {'erro': 404, 'msg': 'Usuario nao encontrado'}
-        
+
         vagas = usuario.obtemVagas()
         sessao.close()
         vagasJson = [vg.converteParaJson() for vg in vagas]
@@ -183,27 +186,19 @@ class ServicoUsuario(object):
             return {'erro': 500, 'msg': 'Erro ao remover usuario', 'exc': str(e)}
         finally:
             session.close()
-        
-        return {'msg': 'Usuario removido', 'usuario': usuarioJson}
 
+        return {'msg': 'Usuario removido', 'usuario': usuarioJson}
 
     def checkLogin(self, dados):
         if 'email' not in dados or 'senha' not in dados:
             return {'erro': 400, 'msg': 'Parametros incompletos'}
-        
+
         session = Session()
         usuario = session.query(Usuario).filter(Usuario.email == dados['email']).first()
 
-        if  not usuario:
+        if not usuario:
             session.close()
             return {'erro': 403, 'msg': 'Usuario nao encontrado'}
-        
-        vagas = []
-        if len(usuario.obtemVagas()):
-            vagas = [vaga.converteParaJson() for vaga in usuario.obtemVagas()]
-        
-        session.close()
-            
 
         vagas = []
         if len(usuario.obtemVagas()):
@@ -213,9 +208,8 @@ class ServicoUsuario(object):
 
         if not Usuario.checkSenha(dados['senha'], usuario.senha):
             return {'erro': 401, 'msg': 'Senha invalida'}
-        
-        return {'id': usuario.id, 'email': usuario.email, 'tipo': usuario.tipo, 'nome': usuario.nome, 'vagas': vagas}
 
+        return {'id': usuario.id, 'email': usuario.email, 'tipo': usuario.tipo, 'nome': usuario.nome, 'vagas': vagas}
 
     def obtemResponsaveis(self, idVaga):
         # if 'idVaga' not in dados:

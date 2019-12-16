@@ -7,6 +7,7 @@ from TestFirebase import *
 import paho.mqtt.publish as publish
 import json
 
+
 class ServicoVaga(object):
     def obtem(self, idVaga=None):
         session = Session()
@@ -22,7 +23,7 @@ class ServicoVaga(object):
         vagasJson = None
         if vagas is not None:
             if type(vagas) == list:
-                vagas.sort(key=lambda vg: vg.identificador) 
+                vagas.sort(key=lambda vg: vg.identificador)
                 vagasJson = [vg.converteParaJson() for vg in vagas]
             else:
                 vagasJson = vagas.converteParaJson()
@@ -42,8 +43,7 @@ class ServicoVaga(object):
             else:
                 vagasJson = vagas.converteParaJson()
 
-        return vagasJson        
-
+        return vagasJson
 
     def obtemIndisponiveis(self):
         session = Session()
@@ -58,7 +58,7 @@ class ServicoVaga(object):
             else:
                 vagasJson = vagas.converteParaJson()
 
-        return vagasJson   
+        return vagasJson
 
     def novaVagaDadosValidados(self, dados):
         dadosObrigatorios = ['identificador', 'codigo']
@@ -99,15 +99,14 @@ class ServicoVaga(object):
             return {'erro': 500, 'msg': 'Erro ao adicionar usuario'}
         finally:
             session.close()
-        
-        return {'msg': 'Vaga adicionada', 'vaga': vagaJson}
 
+        return {'msg': 'Vaga adicionada', 'vaga': vagaJson}
 
     def alteraVaga(self, idVaga, dados):
         print(str(dados))
         session = Session()
         vagaJson = {}
-        
+
         if 'codigo' in dados:
             dados['codAutenticacao'] = dados['codigo']
 
@@ -131,7 +130,6 @@ class ServicoVaga(object):
 
         return {'msg': 'Vaga alterada', 'vaga': vagaJson}
 
-
     def obtemEventos(self, idVaga):
         session = Session()
         eventos = []
@@ -139,12 +137,12 @@ class ServicoVaga(object):
             vaga = session.query(Vaga).filter(Vaga.id == idVaga).first()
             if vaga is None:
                 return {'erro': 404, 'msg': 'Vaga nao encontrada'}
-            
+
             for evento in vaga.eventos:
                 eventos.append(evento.converteParaJson())
 
             # Retorna os eventos ordenados
-            eventos.sort(key=lambda e:e['id'], reverse=True)
+            eventos.sort(key=lambda e: e['id'], reverse=True)
 
         except Exception as e:
             print(str(e))
@@ -159,26 +157,26 @@ class ServicoVaga(object):
 
         session = Session()
         eventosJson = []
-        
+
         try:
             eventos = session.query(Evento).order_by(Evento.id.desc()).limit(count).all()
 
             if eventos is not None:
                 for evento in eventos:
                     eventosJson.append(evento.converteParaJson())
-        
+
         except Exception as e:
             print(str(e))
             return {'erro': 500, 'msg': 'Erro ao obter eventos'}
         finally:
             session.close()
-        
+
         return eventosJson
 
     def adicionaEvento(self, dados):
         if 'id' not in dados or 'estado' not in dados:
             return {'erro': 400, 'msg': 'Parametros incompletos'}
-        
+
         vagaIdent = str(dados['id']).replace(' ', '')
         estadoEvento = dados['estado']
         session = Session()
@@ -196,11 +194,12 @@ class ServicoVaga(object):
             session.commit()
 
             # publica evento MQTT
-            publish.single("simova/vaga/evento", json.dumps(evento.converteParaJson(mqtt=True)), hostname="localhost", port=1885)
+            publish.single("simova/vaga/evento", json.dumps(evento.converteParaJson(mqtt=True)), hostname="localhost",
+                           port=1885)
 
-            firebase = testFirebase()
-            info = evento.converteParaJson()
-            firebase.enviar(info)
+            # firebase = testFirebase()
+            # info = evento.converteParaJson()
+            # firebase.enviar(info)
 
         except ValueError:
             return {'erro': 400, 'msg': 'Valor de parametro invalido'}
@@ -209,14 +208,13 @@ class ServicoVaga(object):
             return {'erro': 500, 'msg': 'Erro ao adicionar evento'}
         finally:
             session.close()
-        
-        return {'msg': 'Evento adicionado'}
 
+        return {'msg': 'Evento adicionado'}
 
     def atrelaUsuarioVaga(self, dados):
         if 'idVaga' not in dados or 'idUsuario' not in dados:
             return {'erro': 400, 'msg': 'Parametros incompletos'}
-        
+
         idVaga = dados['idVaga']
         idUsuario = dados['idUsuario']
 
@@ -235,9 +233,8 @@ class ServicoVaga(object):
             return {'erro': 500, 'msg': 'Erro ao atrelar vaga ao usuario'}
         finally:
             session.close()
-        
-        return {'msg': 'Vaga atrelada ao usuario'}
 
+        return {'msg': 'Vaga atrelada ao usuario'}
 
     def removeVaga(self, idVaga):
         vagaJson = {}
@@ -256,7 +253,8 @@ class ServicoVaga(object):
             return {'erro': 500, 'msg': 'Erro ao remover vaga', 'exc': str(e)}
         finally:
             session.close()
-        
+
         return {'msg': 'Vaga removida', 'usuario': vagaJson}
+
 
 servicoVaga = ServicoVaga()
